@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib as mpl
 
 # 设置全局字体大小
-mpl.rcParams['font.size'] = 14
+mpl.rcParams['font.size'] = 20
 
 # 定义输入文件的名称
 filename = 'search_op_breakdown.csv' 
@@ -19,6 +19,7 @@ with open(filename, newline='') as csvfile:
         data.append([name] + values)
 
 # 使用原始数据中的代码绘制折线图
+plt.figure(figsize=(10, 5.8))
 groups = []
 for row in data:
     name = row[0]
@@ -41,10 +42,11 @@ for i, (name, group) in enumerate(groups):
 plt.xlabel("Number of Threads")
 plt.ylabel("Throughput (Mops/s)")
 # plt.legend()
-plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=14, framealpha=0.8, handlelength=1)
+# plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=14, framealpha=0.8, handlelength=1)
+plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=20, framealpha=0, handlelength=0.8)
 
 # 将输出文件保存到指定名称
-# plt.savefig(output_filename)
+plt.savefig(output_filename)
 
 # # 显示图片
-plt.show()
+# plt.show()

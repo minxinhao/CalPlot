@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib as mpl
 
 # 设置全局字体大小
-mpl.rcParams['font.size'] = 14
+mpl.rcParams['font.size'] = 20
 
 # 数据
 sep_hash = np.array([56161.16, 74343.55, 88537.2, 68007.14]) / 1000
@@ -14,6 +14,7 @@ x_labels = ['YCSB-A', 'YCSB-B', 'YCSB-C', 'YCSB-D']
 legend_labels = ['SepHash', 'RACE', 'Plush', 'Clevel']
 
 # 绘图
+plt.figure(figsize=(10, 5.8))
 x = np.arange(len(x_labels))  # x 轴坐标
 width = 0.2  # 柱宽
 plt.bar(x - 1.5 * width, sep_hash, width, label=legend_labels[0])
@@ -25,7 +26,7 @@ plt.ylabel('Throughput (Mops/s)')
 
 # 设置图例
 # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=4, fontsize=14)
-plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=14, framealpha=0.8, handlelength=1)
+plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=20, framealpha=0, handlelength=1.4)
 
 # 显示图形
 plt.show()
