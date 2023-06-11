@@ -1,0 +1,30 @@
+machine 0
+read_size 64
+num_cli 16 num_coro 1 load_num 10000000
+Load start
+Load duration:21157.40ms
+Load IOPS:472.65Kops
+Run start
+Run duration:116.31ms
+Run IOPS:8597.63Kops
+num_cli 16 num_coro 2 load_num 10000000
+Load start
+Load duration:10111.00ms
+Load IOPS:989.02Kops
+Run start
+Run duration:131.25ms
+Run IOPS:7619.15Kops
+num_cli 16 num_coro 3 load_num 10000000
+Load start
+Load duration:10544.98ms
+Load IOPS:948.32Kops
+Run start
+Run duration:98.55ms
+Run IOPS:10146.80Kops
+num_cli 16 num_coro 4 load_num 10000000
+Load start
+Load duration:9860.78ms
+Load IOPS:1014.12Kops
+Run start
+Run duration:107.44ms
+Run IOPS:9307.55Kops
