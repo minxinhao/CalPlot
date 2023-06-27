@@ -7,10 +7,7 @@ import matplotlib as mpl
 mpl.rcParams['font.size'] = 20
 
 # 定义输入文件的名称
-filename = 'micro_bench_insert.csv' 
-# filename = 'MainSegSize-Search.csv' 
-# filename = 'YCSB-D.csv' 
-# filename = 'CurSegSize-Insert.csv' 
+filename = 'DoorBell.csv' 
 
 # 从CSV文件读取数据
 with open(filename, newline='') as csvfile:
@@ -27,11 +24,11 @@ for row in data:
     name = row[0]
     values = row[1:]
     group = []
-    for i in range(0, len(values), 4):
-        group.append(max(values[i:i+4]))
+    for i in range(0, len(values), 8):
+        group.append(max(values[i:i+8]))
     groups.append((name, group))
 
-x_labels = ['1', '2', '4', '8', '16', '32', '64', '128'] # 将标签存储为字符串
+x_labels = ['1', '2', '4', '8', '16', '32', '64'] # 将标签存储为字符串
 
 # plt.figure(figsize=(10, 6), dpi=300)
 markers = ['o', 's', 'x', '^', 'v', 'D','*', '>'] # 设置每个数据系列的标记样式
@@ -41,16 +38,16 @@ output_filename = '{}.pdf'.format(filename.split('.')[0])
 
 plt.figure(figsize=(7, 5.8))
 # plt.subplots_adjust(wspace=0.1, top=1,left=.1,right=.99)
-plt.subplots_adjust(wspace=0.1, top=.9,bottom=.11,left=.09,right=.99)
 
 for i, (name, group) in enumerate(groups):
+    print(name,group)
     y_data = np.array(group) / 1000 # 将数据除以10
     plt.plot(x_labels, y_data, label=name, marker=markers[i]) # 指定标记样式
 plt.xlabel("Number of Threads")
 plt.ylabel("Throughput (Mops/s)")
 plt.legend(fontsize=20) # 调
 # 整图例字体大小
-plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=18, framealpha=0, handlelength=0.8)
+# plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=20, framealpha=0, handlelength=0.8)
 
 
 # 将输出文件保存到指定名称

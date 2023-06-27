@@ -10,7 +10,7 @@ plt.legend(loc='upper left', fontsize=10)
 # 定义输入文件的名称
 # filename = 'micro_bench_insert.csv' 
 # filename = 'MainSegSize-Search.csv' 
-filename = 'YCSB-D.csv' 
+filename = 'YCSB-C.csv' 
 # filename = 'CurSegSize-Search.csv' 
 
 # 从CSV文件读取数据
@@ -19,7 +19,7 @@ with open(filename, newline='') as csvfile:
     data = []
     for row in reader:
         name = row[0]
-        values = [float(x) for x in row[1:-1]]
+        values = [float(x) for x in row[1:]]
         data.append([name] + values)
 
 # 使用原始数据中的代码绘制折线图
@@ -49,7 +49,7 @@ plt.ylabel("Throughput (Mops/s)")
 plt.legend(loc='upper left', fontsize=10)
 
 # 将输出文件保存到指定名称
-# plt.savefig(output_filename)
+plt.savefig(output_filename)
 
 # # 显示图片
 plt.show()

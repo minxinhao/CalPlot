@@ -12,7 +12,8 @@ filename = 'entry_utilization.csv'
 data_df = pd.read_csv(filename)
 
 # define x-axis values
-plt.figure(figsize=(10, 5.8))
+plt.figure(figsize=(7, 5.8))
+plt.subplots_adjust(wspace=0.1, top=.9,left=.12,right=.99)
 # x = range(10000, 267000, 1000)
 x = range(10, 267, 1)
 
@@ -27,13 +28,13 @@ plt.xlabel("Number of Inserted KVs(thousands)")
 plt.ylabel(filename.split('.')[0])
 
 # add legend
-
+# plt.legend(loc='upper left',fontsize=20, framealpha=0, handlelength=.4)
 # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=14, framealpha=0.8, handlelength=1)
-plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=20, framealpha=0, handlelength=1.4)
+plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=18, framealpha=0, handlelength=.4)
 
 # save plot as a high-quality PDF file
 output_filename = '{}.pdf'.format(filename.split('.')[0])
 plt.savefig(output_filename, dpi=300, bbox_inches='tight')
 
 # show plot
-# plt.show()
+plt.show()

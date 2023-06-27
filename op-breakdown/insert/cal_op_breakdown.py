@@ -12,13 +12,14 @@ data_df = pd.read_csv(filename)
 
 # define x-axis values
 x = range(1, 9, 1)
-plt.figure(figsize=(10, 5.8))
+plt.figure(figsize=(7, 5.8))
+plt.subplots_adjust(wspace=0.1, top=.9,left=.11,right=.99)
 
 # create plot
 plt.plot(x, data_df['RACE']/1000, label='RACE', marker='o')
 plt.plot(x, data_df['batch']/1000, label='batch', marker='s')
 plt.plot(x, data_df['inline-dep']/1000, label='inline-dep', marker='x')
-plt.plot(x, data_df['zero-wait write']/1000, label='zero-wait write', marker='^')
+plt.plot(x, data_df['zero-wait']/1000, label='zero-wait', marker='^')
 
 plt.xticks(x, ['1','2','4','8','16','32','64','128'])
 
@@ -27,9 +28,10 @@ plt.xlabel('number of clients')
 plt.ylabel("Throughput (Mops/s)")
 
 # add legend
-# plt.legend()
+plt.legend(fontsize=20)
 # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=14, framealpha=0.8, handlelength=1)
-plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=20, framealpha=0, handlelength=0.8)
+# plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=20, framealpha=0, handlelength=.4)
+# plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=20, framealpha=0, handlelength=.4)
 
 
 # save plot as a high-quality PDF file

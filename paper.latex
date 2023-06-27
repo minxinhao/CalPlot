@@ -30,34 +30,40 @@
 \usepackage{enumitem}
 \setlist[itemize]{leftmargin=*}
 
-
 \begin{document}
 %  SepHash: Seperate Segment Structure Enabled Write-Optimized Hash Index for Disaggregated Memory
 % SepHash: A Write-Optimized Hash Index with Seperate Segment Structure for Disaggregated Memory
-% SepHash: A Write-Optimized Hash Index On Disaggregated Memory
-\title{SepHash: Separate Segment Structure Enabled Write-Optimized Hash Index for Disaggregated Memory}
+% SepHash: A Write-Optimized Hash Index On Disaggregated Memory via Seperate Segment Structure
+% SepHash: A Write-Optimized Hash Index On Disaggregated Memory via Separate Segment
+\title{SepHash: A Write-Optimized Separate Hash Index On Disaggregated Memory via Separate Segment Structure}
 
 
 %%
 %% The "author" command and its associated commands are used to define the authors and their affiliations.
-% \author{Xinhao Min Kai Lu Pengyu Liu Yiwen Zhang} 
-% \affiliation{%
-%   \institution{Huazhong University of Science and Technology}
-%   \streetaddress{}
-%   \city{}
-%   \state{}
-%   \postcode{}
-% }
-% \email{}
+\author{Xinhao Min} 
+\affiliation{%
+  \institution{Wuhan National Laboratory for Optoelectronics, Huazhong University of Science and Technology}
+}
+\email{minxinhao@hust.edu.cn}
 
-% \author{Kai Lu}
-% \affiliation{%
-%   \institution{WNLO,Huazhong University of Science and Technology}
-%   \streetaddress{}
-%   \city{}
-%   \country{}
-% }
-% \email{}
+\author{Kai Lu}
+\authornote{Corresponding author}
+\affiliation{%
+  \institution{Wuhan National Laboratory for Optoelectronics, Huazhong University of Science and Technology}
+}
+\email{emperorlu@hust.edu.cn}
+
+\author{Pengyu Liu, Jiguang Wan}
+\affiliation{%
+  \institution{Wuhan National Laboratory for Optoelectronics, Huazhong University of Science and Technology}
+}
+\email{{pyliu,jgwan}@hust.edu.cn}
+
+\author{Daohui Wang, Ting Yao, Huatao Wu}
+\affiliation{%
+  \institution{Huawei Cloud}
+}
+\email{{wangdaogui, yaoting17, wuhuatao}@huawei.com}
 
 
 %%
@@ -71,14 +77,28 @@
 % 测试表明，separate在相比于最新的工作，在保持读性能相近的情况下，写性能提高XX倍。
 
 \begin{abstract}
-Disaggregated Memory (DM) separates traditional servers into  dedicated components,including compute nodes and memory nodes, to achieve high resource utilization, independent scalability,and failure isolation. The hash table is a fundamental structure which provides fast point operations. However, under disaggregated architecture, existing hash indexes suffer from high resizing overhead, including entry-based move strategies and out-of-place key-value read amplification, making them inefficient for processing write-intensive workloads. Moreover, concurrency control schemes based on locks or repeated reads introduce additional read and write operations, thus increasing write latency. Furthermore, designing write-optimized index structures while ensuring excellent read performance poses new challenges for index design.
+Disaggregated Memory (DM) separates compute and memory resources into independent pools connected by fast RDMA networks, which can improve memory utilization, reduce cost, and enable elastic scaling of compute and memory resources.
+% 哈希索引提供了高性能的单点操作，被广泛用于
+Hash indexes provide high-performance single-point operations and are widely used in distributed systems and databases.
+% hash index
+However, under disaggregated memory, existing hash indexes suffer from write performance degradation due to high resizing overhead and concurrency control overhead. Traditional write-optimized hash indexes are not efficient for disaggregated memory and sacrifice read performance.
+% ,  Concurrency control (CC) overhead 
+% 写性能 due to high resizing overhead and concurrency control overhead；
+% 然而传统写优化的hash结构无法适应分离内存环境，并且带来牺牲了读性能。
+% including entry-based move strategies and out-of-place key-value read amplification, making them inefficient for processing write-intensive workloads. Moreover, concurrency control schemes based on locks or repeated reads introduce additional read and write operations, thus increasing write latency. 
+% Furthermore, designing write-optimized index structures while ensuring excellent read performance poses new challenges for index design.
 % Furthermore, designing DM-friendly concurrency control strategies and balancing read performance pose new challenges for index structure design.
 % 最后一句的Furthermore, designing DM-friendly concurrency control strategies and balancing read performance pose new challenges for index structure design.会不会太突兀了，能怎么修改一下吗。需要增加具体解释吗
 % 此外，基于锁或重读的并发控制方案，引入额外的读写操作，增加了写操作的延迟。同时在设计写优化索引结构的同时兼顾优异的读性能，对索引设计提出了新挑战。
+% To provide efficient indexing services in disaggregated memory scenarios, this paper proposes a write-optimized hash index called SepHash for disaggregated memory. 
 
-To provide efficient indexing services in disaggregated memory scenarios, this paper proposes a write-optimized hash index called SepHash. To efficiently handle index resizing, SepHash proposes a two-level separate segment structure that significantly reduces the bandwidth consumption of resizing.
+In this paper, we propose SepHash, a write-optimized hash index for disaggregated memory. 
+% 通过
+First, SepHash proposes a two-level separate segment structure that significantly reduces the bandwidth consumption of resize operations.
 % To efficiently handle index resizing, SepHash proposes a two-level dynamic hash structure that significantly reduces the bandwidth consumption of resizing. % 要在这里引入Segment Structure的概念吗
-To reducing the latency overhead caused by concurrency control, SepHash employs a RTT-less concurrency control scheme to eliminate unnecessary mutual exclusion and check overhead during insert operations. To balance read performance, SepHash introduces space-optimized cache and filter structures to accelerate read operations and minimize unnecessary read access. Our evaluation shows that, separate outperforms state-of-the-art distributed in-memory hash indexes by achieving a 3.3x improvement in write performance while maintaining comparable read performance.
+Second, SepHash employs a RTT-less concurrency control scheme to eliminate unnecessary mutual exclusion and check overhead during insert operations. 
+Finally, SepHash introduces space-efficient cache and filter structures to accelerate read operations and minimize unnecessary read access. 
+Evaluation results show that compared to state-of-the-art distributed in-memory hash indexes, SepHash achieves 3.3$\times$ higher write performance while maintaining comparable read performance.
 \end{abstract}
 
 \maketitle
@@ -110,98 +130,142 @@ The source code, data, and/or other artifacts have been made available at \url{h
 %%% VLDB block end %%%
 
 \section{Introduction}
-Recently, disaggregated memory architecture has received widespread attention from both academia[XXX] and industry[XXX] due to its high resource utilization, scalability, and failure isolation advantages. 
-Disaggregated memory (DM)
+Recently, disaggregated memory architecture has received widespread attention from both academia \cite{DBLP:journals/pvldb/Wang0IOA22, DBLP:journals/pvldb/ZhangCCACLL20,LegOs,DBLP:conf/isca/LimCMRRW09} and industry, e.g., Microsoft \cite{Pond}, Alibaba \cite{PolarDB}, IBM \cite{IBM} due to its high resource utilization, scalability, and failure isolation advantages. 
+Disaggregated memory 
 % decomposes the large homogeneous servers in traditional data centers into two separate pools: a computation pool and a memory pool. 
 decouples compute (CPU) and memory resources from traditional monolithic servers to form independent resource pools. 
-The computation pool contains rich CPU resources but minimal memory resources, while the memory pool contains large amounts of memory but weak computational capabilities. 
-The computation pool accesses the memory pool through RDMA-capable networks such as InfiniBand, RoCE, and Omnipath[xxx], which offer salient features including remote CPU bypass[xxx], low latency, and high bandwidth[xxx].
+The compute pool contains rich CPU resources but minimal memory resources, while the memory pool contains large amounts of memory but near-zero computation power.
+The compute pool accesses the memory pool through RDMA-capable networks such as InfiniBand, RoCE, and Omnipath \cite{DBLP:conf/osdi/GaoNKCH0RS16,DBLP:conf/nsdi/ShrivastavVBCLW19,DBLP:journals/corr/ZamanianBKH16}, which offer salient features including remote CPU bypass, low latency, and high bandwidth \cite{Farm,DBLP:conf/sigcomm/ZhuEFGLLPRYZ15,DBLP:conf/hoti/VienneCWISP12}.
 
-Distributed hash indexes are widely used for high-performance data indexing services such as databases[xxx], KV-stores[XXX], memory pools[xxx]. However, due to the near-zero computation power of memory pools, traditional solutions[xxx] based on two-sided RDMA operations cannot be efficiently applied to disaggregated memory architectures. Prior work, e.g., RACE\cite{race}, foucsed on designing hash structures that are friendly to one-sided RDMA access. Nevertheless, when facing write-intensive workloads, the write performance suffers severely due to the significant bandwidth consumption caused by resizing operations. One common way to optimize the write performance of index structures is to introduce leveling index structures that optimize data movement, such as CLevel[x] and Plush[x].  However, their design does not cater to disaggregated memory architectures, leading to frequent network communication induced by a large number of small-sized reads and writes. Furthermore, the multi-level index structure significantly compromises indexing read performance. Directly transplanting these solutions is inadequate to attain the desired performance. 
+Distributed hash indexes are widely used for high-performance data indexing services such as databases, KV-stores, memory pools, file systems, etc. \cite{Memcached,Cicada,Flatstore,DrTM+H,InfiniFS}. 
+However, due to the near-zero computation power of memory pools, traditional solutions \cite{Farm,DrTM+H,Pilaf} based on two-sided RDMA operations cannot be efficiently applied to disaggregated memory architectures.
+Prior work, e.g., RACE \cite{race}, foucsed on designing extendible hash structures \cite{Dynamic-Hash,CCEH} that are friendly to one-sided RDMA access. 
+%Nevertheless, when facing write-intensive workloads, the write performance suffers severely due to the significant bandwidth consumption caused by resizing operations. 
+Nevertheless, when facing write-intensive workloads, RACE suffers from severe write performance degradation due to inefficient resize operations and high concurrency control (CC) overhead. 
+% the significant bandwidth consumption caused by 
+%frequent
+One common way to improve the write performance of hash indexes is to introduce leveling index structures that optimize data movement, such as CLevel \cite{CLevel} and Plush \cite{Plush}.  
+However, these design does not cater to disaggregated  memory architectures, leading to frequent RDMA communication induced by a large number of small-sized reads and writes. 
+Furthermore, the multi-level index structure significantly compromises the read performance. 
+Directly transplanting these solutions is inadequate to attain the desired performance. 
 % Another genre of write-optimized hash indexing employs hierarchical structures to mitigate the overhead of resizing, such as CLevel[x] and Plush[x].
 % 重了
-In a nutshell, it is non-trivial to design an efficient hash index for disaggregated memory due to the following challenges:
+% In a nutshell, it is non-trivial to design an efficient hash index for disaggregated memory due to the following challenges:
+% 和race一样了
+In summary, it is imperative to redesign high-performance hash indexes for disaggregated memory, yet it is confronted with following challenges:
+%总的来说，现有的分离内存的hash结构遭受写性能下降，而写优化的hash方案并不适用于分离内存。本文致力于为分离内存重新设计高性能的hash索引，但面临以下挑战：
+% In a nutshell, the existing hash index for disaggregated memory suffers from low write performance, while the write-optimized hash indexes are not suitable for disaggregated memory. 
+% This paper is devoted to redesigning high-performance hash indexes for disaggregated memory, but faces the following challenges:
 
-%总的来说，现有的分离内存的hash结构遭受读性能下降，而写优化的hash方案并不适用于分离内存。本文致力于为分离内存重新设计高性能的hash索引，但面临以下挑战：
-% In a nutshell, the existing hash index for disaggregated memory suffers from low write performance, while the write-optimized hash indexes are not suitable for disaggregated memory. This paper is devoted to redesigning high-performance hash indexes for disaggregated memory, but faces the following challenges:
+\textbf{1) Significant resizing overhead}.  
+% The computational capabilities of memory nodes are limited, and transferring resizing operations to clients results in significant bandwidth consumption.
+The resize operations of hash indexes need to be transferred to clients due to the limited computation power of memory nodes, resulting in significant bandwidth consumption.
+% substantial network overhead. 
+% Existing write optimization methods, such as extendible hash \cite{Dynamic-Hash,CCEH} and leveling hash structure \cite{Plush,CLevel}, 
+Existing methods concentrate on minimizing the aggregate data volume moved during each resize operation. Nonetheless, they utilize a entry-based transfer strategy that relocates data at the granularity of individual entries, causing substantial network overhead and becoming a performance bottleneck. 
+Simultaneously, in the context of variable-length key-value (KV) payloads, transferring each entry requires accessing the original KV, resulting in a significant increase in read amplification.
 
-\textbf{1) Significant resizing overhead}.  The computational capabilities of memory nodes are limited, and transferring resizing operations to clients results in substantial network overhead. Existing write optimization methods, such as extendible hash and multi-level structure, concentrate on minimizing the aggregate data volume moved during each scaling operation. Nonetheless, they utilize a split transfer strategy that relocates data at the granularity of individual entries, resulting in a significant consumption of network bandwidth and becoming a performance bottleneck. Simultaneously, in the context of variable-length key-value payloads, transferring each entry requires accessing the original KV, resulting in a significant increase in read amplification.
-
-\textbf{2) Concurrency control (CC) overhead}.
+\textbf{2) Concurrency control overhead}.
 % \textbf{2) Concurrency control (CC) strategies}. 
-Concurrent access operations to the index require robust mechanisms for ensuring data consistency. When multiple clients access an index concurrently, they may read or write the same key at the same time. To avoid issues such as insert-miss and duplicate key [xxxx], current approaches generally adopt re-read or lock-based concurrency control strategies. However, both methods incur additional communication round-trip time (RTT) and increase the latency of write operations.
+Concurrent access operations to the index require robust mechanisms for ensuring data consistency. When multiple clients access an index concurrently, they may read or write the same key at the same time. To avoid issues such as insert-miss and duplicate key \cite{CLevel,CCEH,race}, current approaches generally adopt re-read or lock-based concurrency control strategies. However, both methods incur additional communication round-trip time (RTT) and increase the latency of write operations.
 
 \textbf{3) Sacrificing read performance}.
 % \textbf{3) Balancing read performance}. 
-Achieving optimal write performance in distributed key-value stores often requires compromising the orderliness of the data layout, which can negatively impact read performance. For instance, a hierarchical hash structure can result in key distribution across multiple levels, leading to an increased number of read operations. Furthermore, considering the limited memory resources on the computational nodes, restricted RDMA access interface and comminication overhead, optimizing read performance faces greater limitations.
+Achieving optimal write performance in distributed key-value stores often requires compromising the orderliness of the data layout, which can negatively impact read performance. 
+% For instance, a leveling hash structure can result in key distribution across multiple levels, leading to an increased number of read operations. 
+For instance, in a leveling hash structure, the read operation needs to search several levels, causing serious read amplification and read performance loss.
+% the key may be stored on multiple levels, leading to an increased number of read operations.
+Furthermore, optimizing read performance is challenging due to the limited memory resources on the compute nodes, restricted RDMA access interface and communication overhead.
+% considering the limited memory resources on the compute nodes, restricted RDMA access interface and communication overhead, optimizing read performance faces greater limitations.
 % Furthermore, considering the limited memory resources on the computational side and the network communication overhead under disaggregated memory architecture, optimizing read performance faces greater limitations.
 
-In this paper, we propose the SepHash, a write-optimized hash index for disaggregated memory. To mitigate the aforementioned challenges, we have introduced a set of innovative techniques, including separate segment structure for efficient resize operation, an RTT-less concurrency control mechanism for reduced index access overhead, and space-efficient cache and filter structures for accelerating read performance. 
+In this paper, we propose the SepHash, a write-optimized hash index for disaggregated memory. To mitigate the aforementioned challenges, we have introduced a set of innovative techniques, including separate segment structure for efficient resize operation, an RTT-less concurrency control mechanism for reducing write latency, and space-efficient cache and filter structures for improving read performance. 
 % These techniques have been devised to enhance write performance whilst upholding high levels of read performance.
 With these techniques, SepHash can deliver high performance for both read and write operations.
 
 
-\textbf{Separate segment structure}. To mitigate the overhead of resizing, SepHash incorporates the leveling structure into the extendible hash and designs a two-level separate segment structure. 
-The separate segment structure includes a \textit{CurLevel} optimized for dynamic writing and a static \textit{MainLevel} optimized for reading, with each level comprising multiple segments. 
-The data flow between segments is entirely batch-oriented, avoiding individual entry movement operations. Moreover, SepHash introduces an Depth Inline Entry structure, which significantly reduces the need to access the original KV pairs during the resizing process.
+\textbf{Separate segment structure}. 
+To reduce the resizing overhead, SepHash proposes a two-level separate segment structure that combines the benefits of both extendible hash and leveling hash structures. The data flow between segments is completely batch-oriented, avoiding individual entry movement operations. Additionally, by storing depth information (part of hash value) within each entry, the overhead associated with accessing the original key-value pair during resizing is significantly reduced.
 
-\textbf{RTT-less concurrency control}. To mitigate the overhead of concurrency control, SepHash leverages append write and coroutine technology to design an RTT-less concurrency control strategy. This strategy allows for highly concurrent access to the index structure, without the need for additional locking operations or the overhead of re-reading and checking. Moreover, all write operations can return immediately after inserting the pointer of the key-value pair, without waiting for the completion of subsequent update operations, significantly reducing write latency.
-% reducing the latency of write operations.
+\textbf{RTT-less concurrency control}. 
+To mitigate the concurrency control overhead, SepHash designs an RTT-less concurrency control strategy based on append write and coroutine technology. This strategy allows for highly concurrent access to the index structure without additional locking or re-reading operations. Moreover, all write operations can return immediately after inserting the pointer of the key-value pair, without waiting for the completion of subsequent update operations, significantly reducing write latency.
+
+\textbf{Space-efficient cache and filter}. 
+To balance the read performance, SepHash incorporates a filter on the memory side and a client cache on the compute side. These components can effectively reduce the number of RDMA operations and minimize unnecessary read operations. Moreover, considering the limited memory resources in the compute side and the overall space utilization of the index, SepHash employs space-efficient data structures for both the cache and filter components.
 
 
-\textbf{Space-efficient cache and filter}. To balance the read performance, SepHash introduces fingerprint (fp) filter on the memory side and delicate client cache on the computing side. The fp filter reduces unnecessary access to \textit{CurLevel} during the read proccess, while the client cache is used to reduce the number of remote memory accesses and the granularity of access to the segments, thereby minimizing additional read overhead caused by the leveling structure. In addition, considering the overall space utilization of the index and the limited storage resources on the computing side, more compact structures are used for both the fp filter and client cache.
-
-We conducted a comprehensive performance evaluation of SepHash using micro-bench[x] and YCSB[x] workloads. Our experiments demonstrate that, under write-intensive workloads, SepHash significantly improves write performance by 3.3 times compared to state-of-the-art hash index. Additionally, under read-intensive workloads, SepHash achieves a 8.1 times improvement in read performance compared to other hierarchical index structures, which is comparable to state-of-the-art indexing approaches. In summary, we have the following contributions:
+% 提一下实现
+We implement a prototype of SepHash and evaluate the performance using micro-bench and YCSB\cite{YCSB,YCSB-C} workloads. 
+% 我们的测试展示，在写密集负载下，SepHash相比于最先进的哈希索引提升了3.3$\times$的写吞吐，降低了60%的写延迟。
+Our experiments demonstrate that, under write-intensive workloads, SepHash improves the write throughput by 3.3 times and reduces the write latency by 60\% compared to the state-of-the-art hash indexes. Additionally, under read-intensive workloads, SepHash achieves 8.1$\times$ higher read throughput compared to other leveling index structures.
+% 吞吐和延迟
+% , which is comparable to state-of-the-art indexing approaches. 
+In summary, we have the following contributions:
 
 \begin{itemize}
-    \item We conducted a performance analysis of hash indexes on disaggregated memory and identified three factors contributing to poor write performance: the use of entry-based split strategies, read amplification caused by variable-length key-value pairs, and additional round-trip time overhead from concurrent access control strategies.
-    \item We designed and implemented SepHash, a write-optimized hash index on disaggregated memory. SepHash uses a two-level dynamic hash structure, an RTT-less concurrent access control strategy, and space-efficient cache and filter structures to achieve significant improvements in write performance while minimizing the impact on read performance.
-    \item We conducted a comprehensive evaluation of SepHash's performance, comparing it against state-of-the-art indexes. Our experimental results demonstrate that separate outperforms these indexes in terms of write performance while achieving a balanced performance trade-off between read and write operations.
+    \item We conducted a performance analysis of hash indexes on disaggregated memory and identified three factors contributing to poor write performance: the entry-based resize strategies, read amplification caused by variable-length key-value pairs, and additional round-trip time overhead from concurrent access control strategies. In contrast, the write-optimized leveling hash indexes 
+    % 不适合分离内存和牺牲读性能
+    sacrifice read performance. (\S \ref{sec:bac}).
+    \item We designed and implemented SepHash, a write-optimized hash index on disaggregated memory. SepHash uses a two-level dynamic hash structure, an RTT-less concurrent access control strategy, and space-efficient cache and filter structures to achieve significant improvements in write performance while minimizing the impact on read performance (\S \ref{design}).
+    \item We conducted a comprehensive evaluation of SepHash's performance and compared it with state-of-the-art hash indexes. The results demonstrate that SepHash outperforms these indexes in terms of write performance while achieving a balanced performance trade-off between read and write operations (\S \ref{eva}).
 \end{itemize}
 
+\section{Background And Motivation} \label{sec:bac}
 
-% 半勾 $\checkmark\hspace{-1.6mm}\smallsetminus$
-\begin{table}[tbp]
-\centering
-\caption{The comparison of SepHash and State-of-the-Art Write-Optimized Hash. (In this table, “$\times$” indicates a bad performance, “$\checkmark$” indicates a good performance and “-” indicates a moderate performance in the corresponding metrics.)}
-\label{tab:comparison}
-\begin{tabular}{@{}lccccc@{}}
-\toprule
- & RACE & CLevel & Plush & SepHash \\
-\midrule
-Resize-Overhead & $\times$ & - & - & $\checkmark$ \\
-Concurrency-Control  & - & $\times$ & $\times$ & $\checkmark$ \\
-Read Performance & $\checkmark$ & $\times$ & $\times$ & $\checkmark$ \\
-Support DM & $\checkmark$ & $\times$ & $\times$ & $\checkmark$ \\
-\bottomrule
-\end{tabular}
-\end{table}
+\subsection{Disaggregated Memory} \label{sec:DM}
 
-\section{Background And Motivation}
-
-\subsection{Disaggregated Memory}
-
-Disaggregated Memory (DM) architectures segregate different types of resources into separate pools, such as compute and memory pools, which are interconnected using high-performance RDMA networks. The compute pool comprises multiple CPUs with a small amount of DRAM as local cache, while the memory pool consists of a large number of memory resources with weak computing capabilities for handling communication and memory management operations. RDMA networks allow compute nodes to bypass remote CPUs and directly access remote memory, providing RDMA Read, Write, and ATOMIC operations interfaces,e.g.,compare-and-swap(CAS) and fetch-and-add(FAA). RDMA operations are based on the post-poll mechanism, where the user initiates data transfer by posting a work request to the network adapter, which then asynchronously writes data to or reads data from remote memory. During the data transfer process, the user polls the completion queue to check if the operation is complete. From the perspective of the latency overhead of the process, the network asynchronous write operation takes up the majority of the latency overhead, making it suitable for optimization using coroutines. 
+Disaggregated Memory architectures segregate different types of resources into separate pools, such as compute and memory pools, which are interconnected using high-performance RDMA networks. The compute pool comprises multiple CPUs with a small amount of DRAM as local cache, while the memory pool consists of a large number of memory resources with weak computing capabilities for handling communication and memory management operations. RDMA networks allow compute nodes to bypass remote CPUs and directly access remote memory, providing RDMA \texttt{Read}, \texttt{Write}, and \texttt{ATOMIC} operations interfaces,e.g.,compare-and-swap (\texttt{CAS}) and fetch-and-add (\texttt{FAA}). 
+%  RDMA操作基于post-poll机制，用户通过向发送队列发布工作请求来启动数据传输
+RDMA operations are based on the post-poll mechanism. Users initiate data transfer by posting work requests to the send queue. 
+% 同一个send队列中的请求被顺序执行, 使用Doorbell操作，可以在一个request中合并多个RDMA操作。
+Requests in the same send queue are executed sequentially. 
+By using doorbell batching \cite{Sherman,DBLP:conf/usenix/WeiX00Z21,RDMA-Turing}, multiple RDMA operations can be merged into a single request.
+% 由RDMA网卡从send queue中读取请求,再异步地将数据写入或从远程存储器中读取数据。
+These requests are then read by the RDMA NIC, which asynchronously writes or reads data from remote memory. 
+% RDMA operations are based on the post-poll mechanism, where the user initiates data transfer by posting a work request to the send queue, and then the RDMA NIC asynchronously writes data to or reads data from remote memory.
+During the data transfer process, the user polls the completion queue to check if the operation is complete. 
+From the perspective of the latency, the network transmission takes up the majority of the latency overhead, making it suitable for optimization using the coroutine technology. 
 % 一般来说，RDMA提供的读写访问接口如传统的
 
-\subsection{Existing hash Index On Disaggregated Memory}
+\subsection{Existing Hash Index On Disaggregated Memory}
 
 % 需要加这个三级标题吗
-\subsubsection{RACE}
-\
+% \subsubsection{RACE}
+% \
 % To reduce unnecessary reads during lookup operations, each entry in RACE caches the fingerprint information of the key.
 
-RACE[x] is currently the only hash index structure designed for disaggregated memory. RACE uses the extendible hash scheme, which includes a series of segments composed of bucket arrays and a directory that stores pointers to segments. Each bucket contains multiple entries that store only the address of the KV data, rather than directly storing it, to enable support for variable-length KV payloads. To reduce data movement due to hash collisions, each KV pair has two candidate buckets in each segment, and adjacent buckets share a common overflow bucket. Additionally, RACE caches the directory on the client side to minimize the additional RDMA read operations caused by the directory. For write operations, RACE first calculates two candidate buckets in the given segment decided by hash value and retrieves them from the remote server based on the segment address in the local directory cache. Then, the client scans the local buckets to find an empty entryand employs a cas instructions to write the pointer to the key-value pair into it. Finally, since all segment access in RACE is lock-free, the client must re-read the two buckets and scan them again to check for any concurrent threads that may have written the same key. For read operations, RACE also locates the two bucket addresses on the remote server based on the local directory and reads the buckets into the local memory. And then matches the fingerprint information cached in each entry to identify the candidate entries for given key and reads the actual KV data. 
+% 简单介绍一下
 
-\subsubsection{Performance Analysis}
-\
+\textbf{RACE} \cite{race} is currently the only hash index structure designed for disaggregated memory. 
+% 针对分离内存做了哪些优化
+% 增加Local_Depth的引入
+RACE uses the extendible hash scheme, which includes a series of segments composed of bucket arrays and a directory that stores pointers to segments. Each bucket contains multiple entries that store only the address of the KVs, rather than directly storing it, to enable support for variable-length KV payloads. Each KV has two candidate buckets in each segment, and adjacent buckets share a common overflow bucket. Additionally, RACE caches the directory on the client side to minimize the additional RDMA \texttt{Read} operations.
+% caused by the directory. 
 
-RACE demonstrates excellent performance under read-intensive workloads due to its RDMA-conscious subtable structure, which enables read operations to be completed with just one doorbell-triggered read of two buckets and the use of fingerprint in the entry structure eliminates the need to read each KV pairs in corresponding buckets. Moreover, for infrequent hash collisions, RACE provides ample collision resolution space through its multi-way bucket structure, the overflow bucket shared by two main buckets, and the two-choice bucket, all without requiring additional RDMA access. 
+% \begin{figure}[tbp]
+%   \centering
+%   \includegraphics[width=0.4\textwidth]{figures/entry-based-move.png}
+%   % \caption{RDMA吞吐量和访问延迟随访问大小的变化}
+%   \caption{Entry Based Move In RACE. }
+%   \label{fig:Entry-Based-Move}
+% \end{figure}
 
-However, in the context of write-intensive workloads, the likelihood of hash collisions increases substantially. When an insert operation cannot find any empty entry in its primary buckets and overflow buckets, a split operation is triggered. To avoid concurrency conflicts, RACE must lock the subtable being resized, create a new subtable, and update the corresponding directory entry. RACE migrates data in units of entries by reading the original KV data, calculating its hash value, and determining its destination after the split. Each migrated entry is written to its target segment using CAS operations and replaced with an empty entry in the old segment using another CAS operation. This process consumes a significant amount of network bandwidth and locks the insert operation that triggered the split for a prolonged period.
-% 同时每一个kv触发一个RDMA请求，极大的消耗了网卡带宽，读放大？
+The basic operation of RACE is as follows: 
+1) For write operations, RACE first calculates two candidate buckets in the given segment decided by hash value and retrieves them from the remote server. Then, the client scans these buckets to find an empty entry and employs a \texttt{CAS} instructions to write the pointer of KV. Finally, since all segment access in RACE is lock-free, the client must re-read the two buckets and scan them again to check for any concurrent inserted duplicate key. 
+2) For read operations, RACE also locates the two bucket addresses and reads the buckets into the local memory. Then, matches the fingerprint (fp) information cached in each entry to identify the candidate entries for given key and reads the actual KV. 
+% Rize 操作
+3) A resize operation is triggered when there are no empty entries available in the primary and overflow buckets during writing. To avoid concurrency conflicts, RACE must lock the segment being resized. 
+RACE migrates data in units of entries by reading the original KV, calculating its hash value, and determines its destination by checking bit of hash value at local\_depth, which is the number of suffix bits of this segment \cite{Dynamic-Hash, CCEH}. 
+% 每一个被前移的entryis written to its target segment using \texttt{CAS} operations同时在in the old segment中使用另一个\texttt{CAS}指令清空。
+Each migrated entry is written to its target segment using \texttt{CAS} operations and replaced with an empty entry in the old segment using another \texttt{CAS} operation. 
 
-We conducted performance tests on the insertion capability of RACE using mirco-bench[x]. By manipulating the initial size of RACE's hash table, we tested the performance of RACE in inserting 100 million keys from scratch with and without split. As shown in Figure 1a, the test results reveal that in the presence of resize operations, the insert performance is decreased by 50\% compared to the ideal scenario, indicating that split operations account for a considerable portion of the index overhead.
+
+
+\textbf{Performance analysis}: RACE demonstrates excellent performance under read-intensive workloads due to its RDMA-conscious segment structure, which enables read operations to be completed with just on doorbell-triggered read of two buckets and the use of fp in the entry structure eliminates the need to read each KV in corresponding buckets. Moreover, for infrequent hash collisions, RACE provides ample collision resolution space through its multi-way bucket structure, the overflow bucket shared by two main buckets, and the two-choice bucket, all without requiring additional RDMA access. 
+% 频繁触发的resize操作消耗了大量带宽
+However, under write-intensive workloads, the likelihood of hash collisions increases substantially. Frequently triggered resize operations consumes a significant amount of network bandwidth and locks the insert operation that triggered the resize for a prolonged period.
+% 同时每一个KV触发一个RDMA请求，极大的消耗了网卡带宽，读放大？
+We conducted performance tests on the insertion of RACE using mirco-benchmarks. By manipulating the initial size of RACE's hash table, we tested the performance of RACE in inserting 100 million keys from scratch with and without resizing. As shown in Figure \ref{fig:race-throughput}, the test results reveal that in the presence of resize operations, the insert performance is decreased by 50\% compared to the ideal scenario, indicating that resize operations account for a considerable portion of the index overhead.
 
 \begin{figure}[tbp]
 \centering
@@ -209,56 +273,146 @@ We conducted performance tests on the insertion capability of RACE using mirco-b
 {
     \begin{minipage}[]{1\linewidth}
         \centering
-        \includegraphics[scale=0.5]{figures/race-throughput.png}
+        % \includegraphics[scale=0.5]{figures/race-throughput.png}
+        \includegraphics[scale=0.5]{figures/race-throughput.pdf}
     \end{minipage}
+    \label{fig:race-throughput}
 }
 \subfigure[Breakdown of Insert Latency in RACE]
 {
  	\begin{minipage}[]{1\linewidth}
         \centering
-        \includegraphics[scale=0.5]{figures/race-break-down.png}
+        % \includegraphics[scale=0.5]{figures/race-break-down.png}
+        \includegraphics[scale=0.5]{figures/race-break-down.pdf}
     \end{minipage}
+    \label{fig:race-break-down}
 }
-% ReadBuc,代表insert中读取bucket，CasSlot代表将kv pointer写入empty entry,ReRead重读buckets。
-% ReadSeg,代表Split过程中读取整个Segment，ReadKV代表读取每个entry对应的kv,MoveEntry搬迁entry到new segment和擦除old segment中的entry.
+% ReadBuc,代表insert中读取bucket，CasSlot代表将KV pointer写入empty entry,ReRead重读buckets。
+% ReadSeg,代表Split过程中读取整个Segment，ReadKV代表读取每个entry对应的KV,MoveEntry搬迁entry到new segment和擦除old segment中的entry.
 
 \caption{Performance of RACE on dissaggregated memory. }
 \end{figure}
 
 
-\subsubsection{Latency breakdown}
+% \subsubsection{Latency breakdown}
+% \
+
+% \textbf{Latency breakdown}: 
+In further, we conducted a more granular decomposition of the insert latency overhead in RACE, as depicted in Figure \ref{fig:race-break-down}. Specifically, we identified the three RTTs in the insert process,  including reading the corresponding bucket (ReadBuc), a \texttt{CAS} operation to occupy an empty entry with pointer to KV pair (CasSlot), and re-reading the bucket to check duplicate key (ReRead). Additionally, we decomposed the resize process into ReadSeg, ReadKV, and MoveEntry, which respectively correspond to reading each bucket in the resized segment, retrieving the corresponding KV for each entry, and erasing/writing the entry that needs to be moved.
+As expected, the breakdown results reveal that in the presence of resize operations, the overhead introduced by resize accounts for half (51\%) of the total latency. Notably, the overhead due to erasing/writing entries represents the largest portion of the index overhead, comprising 34\% of the total. Reading the corresponding KV for each entry also contributes significantly to the resize operation overhead, at 30\%. 
+Additionally, the concurrent control policy results in ReRead operations, which account for one-third of the overhead in the normal insert process. 
+
+\textbf{Tests conclusion}: The index structure adopted by RACE fail to meet the performance demands of write-intensive workloads due to inefficient resize operations and concurrency control policy.
+% 低效的resize操作和并发控制策略
+The entry-based move strategy and read amplification caused by reading the original KV result in substantial bandwidth consumption during resizing. 
+% xxx
+The concurrent control policy introduces considerable additional overhead that cannot be ignored.
+% 
+
+
+
+% \subsection{Leveling hash structures for Write Optimization}
+\subsection{Write-optimized Leveling Hash Structure}
 \
 
-We conducted a more granular decomposition of the insert latency overhead in RACE, as depicted in Figure 1b. Specifically, we identified the three RTTs in the insert process,  including reading the corresponding bucket (ReadBuc), using a cas operation to write the KV pointer into an empty entry in the bucket (CasSlot), and re-reading the bucket to check if the write was successful (ReRead). Additionally, we decomposed the split process into ReadSeg, ReadKV, and MoveEntry, which respectively correspond to reading each bucket in the split segment, retrieving the corresponding KV for each entry, and erasing/writing the entry that needs to be moved. As expected, the breakdown results reveal that in the presence of split operations, the overhead introduced by split accounts for half (51\%) of the total latency. Notably, the overhead due to erasing/writing entries represents the largest portion of the index overhead, comprising 34\% of the total. Reading the corresponding KV for each entry also contributes significantly to the split operation overhead, at 30\%. Additionally, the concurrent control policy results in ReRead operations, which account for one-third of the overhead in the normal insert process. 
+In addition to the extendible hash, leveling hash structures such as CLevel and Plush represent another class of approaches to optimize write performance.
+By enabling the presence of multiple levels of hash tables, these structures transform static hash tables into dynamic hash tables that can be resized to accommodate write-intensive workloads.
 
-To sum up, the index structure and concurrent control policy adopted by RACE fail to meet the performance demands of write-intensive workloads. The entry-based move strategy and out-of-place KV strategy result in substantial bandwidth consumption during resizing. And the concurrent control policy introduces a considerable amount of additional overhead that cannot be overlooked.
+\textbf{CLevel:} CLevel consists of multiple levels of hash tables, with the size of each hash table increasing gradually from bottom to top. Each level's hash table is an array composed of buckets, and all levels are linked together via an adjacent linked list. 
+For each insertion operation, the client traverses each level of the hash table from bottom to top in search of an empty slot and clears any encountered duplicate keys. 
+The client then writes the data to the empty slot closest to the top level. 
+For read operations, the client also traverse each level of the hash table from bottom to top in search of a matching key. 
+To prevent duplicate keys, the client must continue searching until the top level is reached, even if a matching key is found in an intermediate level. For resize operations, the user thread creates a hash table with twice the size of the top level, inserts it into the adjacent linked list using a \texttt{CAS} instruction. The background resize thread migrates data from the lowest level to the newly allocated hash table at the top level until there are only two levels of hash tables remaining.
 
-\subsection{Hierarchical hash for Write Optimization}
+\textbf{Plush:} Plush incorporates the principles of the Log-Structured Merge tree\cite{DBLP:journals/pvldb/SarkarSZA21,DBLP:journals/tos/HeALLW23,REMIX} into hash tables.
+% 与CLevel相反，Plush由从上到下大小倍增的一系列hash表组成，每一层都实现为一个固定大小的extendib哈希表
+In contrast to CLevel, Plush is composed of multiple levels of hash tables that increase in size from top to bottom, with each level being implemented as a fixed-size extendible hash table.
+%然后随着数据的积累不断从最高层次往下刷写。
+% For write operations, data is first written to the smallest hash table at the top level. 
+For write operations, the data is initially written to the smallest hash table at the top level, and then gradually flushed down to lower levels as data accumulates.
+To avoid concurrent write access from other threads, Plush uses locks to protect the segment corresponding to the key from concurrent writes. For read operations, Plush also performs a top-down traversal to search for the key-value pair. However, unlike CLevel, Plush can return the result directly after finding a match for the key since the most recent key is only present in the higher levels. And to reduce the number of unnecessary read operations on segments, Plush utilizes Bloom filters for each segment. For resize operations, when a segment in the top level is full, Plush writes it to the corresponding two segments in the next level below, similar to the extendible hash scheme. If the segment size reaches its limit, a recursive expansion operation is triggered downwards.
 
-In addition to the Extendible Hash, hierarchical hash structures such as CLevel[X] and Plush[x] represent another class of optimizations for improving write performance of hash indexes. By enabling the presence of multiple levels of hash tables, these structures transform static hash tables into dynamic hash tables that can be resized to accommodate write-intensive workloads.
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=0.4\textwidth]{figures/RDMA-Thourghput-Latency.pdf}
+  % \caption{RDMA吞吐量和访问延迟随访问大小的变化}
+  \caption{RDMA throughput and access latency under varying access size.}
+  \label{fig:RDMA-Thourghput-Latency}
+\end{figure}
 
-\textbf{CLevel:} CLevel[x] consists of multiple levels of hash tables, with the size of each hash table increasing gradually from bottom to top. Each level's hash table is an array composed of buckets, and all levels are linked together via an adjacent linked list. For each insertion operation, the client traverses each level of the hash table from bottom to top in search of an empty slot and clears any encountered duplicate keys. The client then writes the data to the empty slot closest to the top level. For read operations, the client also traverse each level of the hash table from bottom to top in search of a matching key. And to prevent duplicate keys, the client must continue searching until the top level is reached, even if a matching key is found in an intermediate level. For resize operations, the user thread creates a hash table with twice the size of the top level, inserts it into the adjacent linked list using a cas instruction. The background resize thread migrates data from the lowest level to the newly allocated hash table at the top level until there are only two levels of hash tables remaining.
+\textbf{Performance analysis:} 
+% 要不要加一句 when apllying to DM,
+% The advantage of a leveling structure is that it enables batch moves of data during resizing.
+% CLevel基于层级结构设计了后台扩展策略，which减少了对前台线程的阻塞，从而提高了写操作的吞吐量。然后伴随着后台搬迁，CLevel需要从底层开始遍历所有层次来避免所有的访问冲突, 因而加大的增加了访问延迟。同时后台扩展仍然使用entry-based的搬迁策略，搬迁过程中巨大读写放大阻止了性能的进一步提升
+CLevel designs a background resizing strategy based on the leveling structure, which reduces blocking of foreground threads and thus increases the throughput of write operations. However, CLevel needs to traverse all levels from the bottom to avoid all access conflicts, thus increasing access latency. 
+% At the same time, CLevel still uses an entry-based move strategy, and the huge read and write amplification during entry move prevents further performance gains.
+% 同时后台扩展仍然使用entry-based的搬迁策略，搬迁过程中巨大读写放大阻止了性能的进一步提升。maybe可以就给Plush
+% Plush使用batch的策略组织不同层次之间的数据搬迁，消除了逐条搬运数据的写放大。As shown in figure ref{fig:race-throughput}, 当将batch的方式应用在RACE的resize之中时，获取了一定的性能提升。但是相比于最优的性能，仍然有巨大的提升空间。
+Plush uses batch strategies to organize data migration between different levels, eliminating write amplification caused by moving data one by one. As shown in Figure \ref{fig:race-throughput}, applying batch migration to the resizing process of RACE can improve the performance. However, there is still significant room for improvement compared to the optimal performance.
+In addition, both CLevel and Plush are designed specifically for persistent memory, taking into consideration aspects such as fault recovery and persistence. 
+Due to the low access latency of local NVM, these indexes involve lots of small-grained read and write access to the index metadata, which result in significant communication overheads on disaggregated memory. 
+As shown in Figure \ref{fig:RDMA-Thourghput-Latency}, we tested the changes of RDMA bandwidth and latency with access granularity. 
+It can be observed that smaller access granularity leads to lower bandwidth, while larger access granularity may bring the increased latency due to the PCIe interface used by RDMA NIC \cite{PCIE}. 
+Therefore, to design an efficient index structure for disaggregated memory,
+it is crucial to carefully choose an appropriate access granularity, such as 512 bytes or 1024 bytes.
+Moreover, the leveling structure increases the access path for read operations, and even with optimizations such as Bloom filters, read performance can still be severely impacted, as reported in the performance evaluations in \S \ref{ycsb}.
 
-\textbf{Plush:} Plush incorporates the principles of the Log-Structured Merge (LSM) tree into hash tables. Plush is composed of multiple levels of hash tables, with each level being implemented as a fixed-size Extendible Hash Table. Similar to the LSM tree, the levels of Plush form a pyramid structure with increasing size from top to bottom. For write operations, data is first written to the smallest hash table at the top level. To avoid concurrent write access from other threads, Plush uses locks to protect the segment corresponding to the key from concurrent writes.For read operations, Plush also performs a top-down traversal to search for the key-value pair. However, unlike CLevel, Plush can return the result directly after finding a match for the key since the most recent key is only present in the higher levels. And to reduce the number of unnecessary read operations on segments, Plush utilizes Bloom filters for each segment. For resize operations, when a segment in the top level is full, Plush writes it to the corresponding two segments in the next level below, similar to the Extendible hash scheme. If the segment size reaches its limit, a recursive expansion operation is triggered downwards.
+\textbf{Tests conclusion:}  The leveling structure can improve write performance, but it requires more tailored designs for disaggregated memory. Additionally, the use of a leveling structure may sacrifice the read performance of the index.
 
-\textbf{Performance Analysis:} The advantage of a hierarchical structure is that it enables batch moves of data during resizing, and allowing resize operations to be performed in the background, which reduces the impact on foreground operations. However both CLevel and Plush are designed specifically for persistent memory (PM) storage media, taking into consideration aspects such as fault recovery and persistence of the index. Moreover, due to the low access latency of local NVM, these index systems involve a significant amount of small-grained read and write access to the index metadata, which can result in significant communication overheads on disaggregated memory architecture. Indeed, the hierarchical structure can increase the number of levels that need to be traversed during a lookup operation, even when optimized with techniques like Bloom filters. As a result, read performance can still be significantly impacted, as reported in performance evaluations in Section 4.3. 
+% 半勾 $\checkmark\hspace{-1.6mm}\smallsetminus$
+\begin{table}[tbp]
+\centering
+\caption{The comparison of SepHash and State-of-the-Art Write-Optimized Hash. (In this table, “$\times$” indicates a bad performance, “$\checkmark$” indicates a good performance and “-” indicates a moderate performance in the corresponding metrics.)
+}
+\label{tab:comparison}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+ & RACE & CLevel & Plush & SepHash \\
+\midrule
+Resize Overhead & $\times$ & $\checkmark$ & - & $\checkmark$ \\
+Concurrency Overhead  & - & $\times$ & - &  $\checkmark$ \\
+Read Performance & $\checkmark$ & $\times$ & $\times$ & $\checkmark$ \\
+Support DM & $\checkmark$ & $\times$ & $\times$ & $\checkmark$ \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-In summary, the use of a hierarchical structure can lead to improved write performance of hash table. However, achieving optimal performance requires considering additional factors, such as concurrency control, read amplification, and erase overhead. As shown in Figure 1a, we applied a similar batch-move approach to RACE, which improved write performance, but there is still significant room for improvement to reach optimal performance. Meanwhile, achieving high read performance in a hierarchical structure is a valuable challenge that needs to be addressed.
+\subsection{Limitations of Existing Approaches}
+
+After the above tests and analysis, the comparison of the state-of-the-art hash index structures is summarized as shown in Table \ref{tab:comparison}. 
+Among them, RACE employs a one-sided RDMA-friendly design that provides good support for disaggregated memory and excellent read performance, but suffers from significant resize and concurrency control overheads, making it unsuitable for write-intensive workloads.
+On the other hand, although CLevel and Plush use a more friendly expansion strategy, they do not support disaggregated memory, and the multi-level index structure results in additional concurrency overheads and poor read performance. 
+Our SepHash aims to achieve good performance in all metrics through novel index structure.
 
 
 
-\section{SepHash}
+\section{SepHash Design} \label{design}
 
-\subsection{Overview}
+\subsection{Overview} 
+\label{sec:overview}
+
+
+
+This paper proposes SepHash, a write-optimized hash index on disaggregated memory with three core design principles: 1) \textit{low resize overhead}, 2) \textit{low write latency}, and 3) \textit{balanced read performance}. Figure \ref{fig:overview} shows its key design components:
+
+\begin{itemize}
+    \item \textit{Separate Segment Structure} (\S \ref{sec:index_struture}). SepHash introduces a separate segment structure that consists of a small unordered segment (called CurSegment) for efficient writing and a large ordered segment (called MainSegment) for quick searching. Each CurSegment corresponds to a Mainsegment. Whenever the data accumulation in CurSegment or MainSegment reaches the size limits, a resize operation (segment merge or split) is triggered to batch transfer data to a new MainSegment.
+    \item \textit{RTT-less concurrency control} (\S \ref{sec:rttless-cc}). 
+    All concurrent write operations are atomically performed in CurSegment with the append-only manner. Subsequent write operations directly overwrite old data without the need to re-read or lock the segment to avoid duplicate keys. Additionally, the coroutine-optimized zero-wait RDMA interface is adopted to reduce the write latency.
+    \item \textit{Space-efficient cache and filter} (\S \ref{sec:cache_filter}). Each CurSegment is equipped with a space-efficient fingerprint (fp) filter to reduce unnecessary reads. For each MainSegment, a metadata table (called FPTable) recording entry distribution information is cached in the clients, and the cache space is compacted using delta-based scheme.
+\end{itemize}
+
 
 \begin{figure}[tbp]
   \centering
   \includegraphics[width=0.4\textwidth]{figures/separate-overview.png}
-  \caption{The overall architecture of SepHash on disaggregated memory. }
+  \caption{The overall architecture of SepHash. }
   \label{fig:overview}
 \end{figure}
 
-This paper proposes Seph, a write-optimized hash index on disaggregated memory, designed with three core objectives: \textit{low resize overhead}, \textit{low write latency}, and \textit{balanced read performance}. Figure \ref{fig:overview} shows the overall structure of SepHash. The main index structure of SepHash is stored in the memory pool and comprises two levels of hash tables: CurLevel and MainLevel. Each level is organized using an extendible hashing scheme based on the least significant bits of the hash key and indexed using a global directory. Each segment in the CurLevel(CurSegment) corresponds to a segment in the MainLevel(MainSegment), consisting of an array of entries. In the compute pool, clients maintain a cache to accelerate access to the index, and use pure one-sided RDMA verbs to perform read and write operations on the index structure in the memory pool. In section \ref{sec:index_struture}, we present the detailed structure of the Separate Segment Structure and its index resizing method, which supports high read and write performance. Data flow between segments is batched to avoid excessive bandwidth consumption during resizing. In section \ref{sec:rttless-cc}, we introduce a RTT-less concurrency control strategy that reduces write latency to 2 RTTs by optimizing the write logic and utilizing coroutine technology. Finally, in section \ref{sec:cache_filter}, we present a cache and filter structure designed to optimize read performance, which has a smaller space overhead.
+The main index structure of SepHash is stored in the memory pool and comprises two levels of hash tables. Each level is organized using an extendible hashing scheme based on the least significant bits of the hash key and indexed using a global directory. In the compute pool, the client maintain a directory cache to accelerate index accesses, and use pure one-sided RDMA verbs to perform read/write operations on the index structure in the memory pool. 
+
+
 
 \subsection{The SepHash Index Structure}
 \label{sec:index_struture}
@@ -266,226 +420,398 @@ This paper proposes Seph, a write-optimized hash index on disaggregated memory, 
 \subsubsection{Separate Segment Struture}
 \
 
+% As previously mentioned，当前基于extendbile hash或leveling hash结构的hash索引在分离内存上存在resize开销和并发开销巨大以及平衡读性能的问题，
+% extendible hash，xxx
+% level，xx
+% As previously mentioned, the current hash indexes suffer from significant resize and concurrency control overheads in disaggregated memory, as well as the challenge of balancing read performance.
+As previously mentioned, the current hash indexes based on extendible hashing or leveling hashing structures suffer from significant resize and concurrency control overheads in disaggregated memory, as well as the challenge of balancing read performance.
+To address these problems, we design a sophisticated separate segment structure, as shown in Figure \ref{fig:segmentstructure}, which includes four major designs:
+
+% Separate Segment Structures使用了4 key design to address challenge mentioned in \S \ref{sec:bac} an
+
+\textbf{1) Dual Level Structure.} 
+The leveling structure allows for efficient resize by moving entry in batches. However, using excessively high-level hash tables would compromises read performance.
+To balances read and write performance, we choose to divide the data into a top level of CurSegments that quickly accepts write data and a bottom level of MainSegments that efficiently serves read operations. 
+Each write operation adds data to the top level and returns, while read operations only need to read data from the bottom level in most cases. 
+This minimizes the number of levels traversed by read and write operations along the path.
+The resize operation is divided into two parts: segment merge and split. When the size of CurSegment reaches the capacity limit, the segment merge operation is triggered to merge the data in CurSegment into the corresponding MainSegment in batches. When the merged MainSegment reaches its size limit, the segment split operation is triggered to split the MainSegment into two smaller MainSegments.
+
+
 \begin{figure}[tbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{figures/SegmentStructure.png}
-  \caption{SegmentStructure. }
+  \includegraphics[width=0.4\textwidth]{figures/segment.png}
+  \caption{Segment structure in SepHash. }
   \label{fig:segmentstructure}
 \end{figure}
 
-As previously mentioned, the current entry-based move scheme introduces significant resizing overhead in hash index structures. Additionally, as analyzed in section 2.2, there is also the issue of read amplification caused by out-of-place kv, the cost of erasing old entries, and the significant performance degradation on read operation caused by hierarchical structures. Furthermore, for hash index structures, space utilization is an important metric that must be considered. In order to reduce index resize overhead, maintain high space utilization, and ensure good read performance, we have designed a sophisticated separate segment structure, which includes four major design choices:
 
-\textbf{1) Dual Level Structure.} The hierarchical structure allows for efficient batch-entry move resizing, reducing the overhead of index resizing. However, using excessively high-level hash tables would require read operations to access more levels, compromising read performance, which is a critical advantage of hash indexing. To balance optimizing index resize overhead and sustaining good read performance, we developed a two-level hash table structure. The structure comprises a CurLevel that accepts dynamic writes and a relatively static MainLevel, each organized using the extendible hash method based on the hash suffix. The MainSegment has a size limit several times larger than that of the CurSegment (e.g., 16, 64). All write operations are first written to CurLevel, and most read operations hit on MainLevel. Data flows from CurLevel to MainLevel and splits within MainLevel in batches.
 
-\textbf{2) Shared CurSegment.} According to [XXXX], the associativity strategy can provide sufficient collision space to avoid frequent hash resize operations when collisions occur and increase the space utilization of the hash index by allowing more KVs to share the same hash. To this end, we have designed a big shared cursegment that allows all kv pairs within the same segment to share the same suffix. In contrast to previous work that utilized smaller-granularity buckets as the unit of hash collisions within segments, the big shared cursegment drastically reduces the frequency of hash resizing caused by collisions. Furthermore, by eliminating metadata in each bucket [XX], shared segments achieves higher space utilization. 
-And when combined with the rtt-less concurrency control (\S 3.3) and the client cache (\S 3.4), it is possible to not only avoid the read amplification caused by big segment size, but also achieve lower write latency.
-% And when combined with the rtt-less concurrency control (\S 3.3) and the client cache (\S 3.4), it can provide lower write latency.
 
-\textbf{3) Sorted MainSegment.} Mitigating the performance degradation caused by hierarchical structures during reads is challenging. Traditional approaches such as LSM-Tree and Plush perform a level-by-level search and store membership query data structures such as bloom filters for bottom tables. However, we argue that storing bloom filters for MainSegments would consume significant space and have limited acceleration effects on the overall read process, especially on disaggregated memory, as the majority of keys hit within the MainSegment. On the contrary, we added filters to the Segments of the smaller CurLevel, and adopted a sorted structure for the MainSegment, in which all entries are sorted according to fingerprints. We use the number of entries corresponding to each fingerprints to construct a fp table (\S 3.4). With sorted MainSegment and fp table, each key only needs to read a small piece of entries in MainSegment according to fp when performing read operations, which greatly reduces the read amplification of read operations.
-% By caching this in the Compute pool, during read operations, each key only needs to read a small segment of entry slots corresponding to its fp.
+\textbf{2) Shared CurSegment.} 
+To reduce resize overhead and improve space utilization,  we design a shared CurSegment structure with a size suitable for RDMA access (e.g., 512 bytes, 1024 bytes). 
+The CurSegment eliminates the intermediate layer of bucket, and all entries in CurSegment have the same suffix. 
+Each entry is 8 bytes, and all inserts compete for these entries in order using \texttt{CAS} operations.
+By expanding the collision domain to the entire segment, the frequency of resize operations is reduced, while achieving higher entry utilization. 
+Additionally, the metadata information (CurSegMeta) stored at the header of the CurSegment is shared by all entries, greatly reducing the additional space overhead caused by metadata.
+% 
+To shorten the access path, we add a filter to the CurSegMeta that records the keys present in the CurSegment. This enables read operations to check whether the target key is present in the CurSegment, avoiding unnecessary read accesses.
 
-\textbf{4) Depth Inline Entry.} The out-of-place kv strategy results in significant read amplification overhead during resizing, even when entries are batch moved. To address this, we introduce the Depth Inline Entry structure, which pre-writes four bits of depth information into each entry during insertion. This enables efficient determination of each kv's location during resizing without repeatedly reading kv pairs. Moreover, compared to directly storing the complete kv hash value for each entry, the depth inline entry structure significantly saves space while achieving similar scalability performance. Each entry also contains a 1-bit sign bit, allowing for atomic batch clearing of a CurSegment after resizing by flipping its sign bit.
 
-Combining all the design elements, the structure of the Separate Segment is shown in Figure 3. CurSegment and MainSegment both consist of a contiguous array of entries. The entries in CurSegment share a common suffix and are unordered, whereas the entries in MainSegment are sorted based on their fingerprint values. Each entry includes a 1-bit sign indicating its free status, a 3-bit length indicating the length of the kv block after alignment to 64 bytes\footnote{The proposed approach provides a maximum size limit of 512 bytes per kv block, which is consistent with most kv index. Additionally, more contents can be expanded using linked blocks.}, a 48-bit offset pointing to the specific kv data, a 4-bit depth info, and two 8-bit fingerprints fp and fp2. The fp2 is used to further filter unnecessary accesses to kv pairs when accessing Sorted MainSegment. The CurSegment header includes a sign bit, local depth information of 7 bits, a pointer to the corresponding MainSegment and its length, and a BitMap for access filtering. 
+\textbf{3) Resize-Optimized Entry.} 
+To avoid read amplification during the resizing process, we pre-store a portion of the hash value (depth\_info) for future splits in each entry.
+Specifically, we group 4 split operations as a round, and during each insertion,  we select 4 bits as the depth\_info from the hash value based on the current local\_depth.
+In each subsequent segment split, one bit of depth\_info is used to determine the move destination of the entry.
+Compared to storing the entire hash value of each entry, it can also reduce space consumption by 50\% with a comparable acceleration effect.
+To reduce the write amplification caused by emptying the entries, we add a sign bit for each entry and CurSegMeta, and only entries with the same sign as CurSegMeta are free.
+After the flushing operation, modifying the sign bit in CurSegMeta can atomically batch clear all entries in CurSegment.
 
-The Separate Segment Structure efficiently supports disaggregated memory and offers the following advantages:
 
-\underline{\textit{Less entry-move overhead}}: By using batch processing to organize data flow between segments, the bandwidth consumption incurred by moving entries. And the sign bit-based state management mechanism avoids the need to clear outdated entries individually.
-% And the state management mechanism based on the sign bit eliminates the need to clear outdated entries one by one.
 
-\underline{\textit{Less read amplification}}: The pre-storing information of subsequent split transfers in the entry, avoids the need to read the original kv pairs during the entry transfer process, resulting in a significant reduction in the read amplification caused by out-of-place kv pairs.
+\textbf{4) Sorted MainSegment.} 
+To accelerate the search operation, all entries are sorted in the MainSegment according to their fp. 
+This enable each search operation to retrieve only a portion of the entries corresponding to a specific fp, 
+To quickly locate the address corresponding to a given fp, we design an FPTable to store the offset of each fp within the segment.
+In a dual-level structure, the size of MainSegment is much larger than that of CurSegment (e.g., 32 or 64 times the size of the CurSegment). This results in many entries with the same fp, which degrades the search performance. Therefore, we add an extra fingerprint (called fp2) for each entry.
 
-\underline{\textit{High space utilization}}: The use of big shared segments reduces the index expansion caused by hash collisions, thereby improving the overall space utilization of the index. And the compact entry structure, filter, etc. minimizes additional space requirements.
+Combining all the design elements, the detail of separate segment structure is shown in Figure \ref{fig:segmentstructure}. 
+CurSegment and MainSegment both consist of a contiguous array of entries. The entries in CurSegment share a common suffix and are unordered, whereas the entries in MainSegment are sorted based on their fps. 
+The CurSegment header includes a sign bit, a 7-bits local\_depth, a pointer to the corresponding MainSegment and its length, and a filter.
+Each entry includes a 1-bit sign indicating its free status, a 3-bit length indicating the length of the KV block after alignment to 64 bytes, a 4-bit depth\_info (dep), a 48-bit kv\_ptr pointing to the specific KV, and two 8-bit fingerprints fp and fp2. 
+The MainSegment header (FPTable) holds the offset corresponding to each fp array in the MainSegment, and the overflag, indicating whether the FPTable is overflowing.
+Based on the separate segment structure, the basic flow of insert and search operations is as follows: 
 
-\underline{\textit{Balanced read performance}}: Using a two-level hash table structure minimizes the performance degradation caused by hierarchical structures , while using a sorted main segment speeds up access to the MainLevel with the most read hits.
+\textbf{Insert:} To insert a KV pair, first calculate the hash value and get the pointer to CurSegment. After reading the CurSegment into local memory, find a free entry with the same sign as CurSegMeta. 
+% 
+% As shown in Figure 5, 根据key和local\_depth在本地初始化entry。
+As shown in Figure \ref{fig:insert-dep}, the entry is initialised according to the key and local\_depth.
+% Hash values 以4bits为一组划分为15个round，根据CurSegMeta中的local\_depth除以4确定当前所处的split round并选择对应的depth\_info.
+Hash values are divided into 16 rounds of 4bits, and the current split round is determined by dividing local\_depth by 4 in CurSegMeta, and initializing the corresponding depth\_info.
+% % 使用key计算出两个8 bits的指纹fp、fp2填入到entry之中。
+Two 8-bit fingerprints, fp and fp2, are calculated from the key and stored in the entry.
+% Entry的depth\_info通过local\_depth除以4的round从hash value中选出。8bits的指纹fp、fp2通过从key计算得到。
+% 使用一个RDMA CAS将entry写入到远端内存，然后使用RDMA Write更新entry尾部的fp2与CurSegMeta中的bitmap。
+Use an RDMA \texttt{CAS} to write the entry to remote memory, then use an RDMA \texttt{Write} to update the fp2 at the end of the entry and the bitmap in CurSegMeta.
+%Two 8-bit fingerprints, fp and fp2, are calculated from the key and stored in the entry.
+% Set the dep and fp fields in the entry based on the hash values and local\_depth in CurSegMeta, and use cas to write to the remote entry. 
+% Then use RDMA Write to update the fp2 at the end of the entry with the bitmap in CurSegMeta. 
+When the Insert operation cannot find a free entry in CurSegment, it triggers a resize operation.
+% % After reading the CurSegment, find a free entry in CurSegment with the same sign as CurSegMeta.
+% % 当进行插入操作时，hash value以四个bits进行分组，对应每个split round使用的depth\_info.
+% % After reading the CurSegment, find a free entry in CurSegment with the same sign as CurSegMeta,然后使用使用key和CurSegMeta中的数据来初始化entry，如图5所示。
+% % As shown in Figure \ref{fig:insert-dep}, the key and data in CurSegMeta are used to initialize the information in the entry.
+% After reading the CurSegment, find a free entry in CurSegment with the same sign as CurSegMeta, then initialise the entry using the key and the data in CurSegMeta, as shown in Figure \ref{fig:insert-dep}.
+% % 因为dep字段 4 bits 长度的限制，将hash value以四个bits进行分组，对应每4次一个周期的split round中的depth\_info。
+% % Due to the limitation of the 4-bit length of the dep field, the hash value is divided into groups of four bits, corresponding to a split round every 4 cycles.
+% Due to the limitation of the 4-bit length of the dep field, the hash value is divided into groups of four bits, corresponding to the depth\_info in a split round every four cycles.
+% % 根据当前CurSegMeta中的local\_depth除以4确定当前所处的split round，并从hash value选择对应的depth\_info填入到entry的dep字段。
+% The current split round is determined by dividing the local\_depth of the current CurSegMeta by 4 and using this to select the corresponding depth\_info from the hash value to fill in the dep field of the entry.
+% % 使用key计算出两个8 bits的指纹fp、fp2填入到entry之中。
+% Two 8-bit fingerprints, fp and fp2, are calculated from the key and stored in the entry.
+Update or delete is respectively transformed into insert operations using the corresponding new value or a blank value.
+
+\textbf{Search:} To search the value of target key, first get the pointers to CurSegment and MainSegment in directory based on the hash value calculated from key, then read the filter in CurSegment and FPTable in MainSegment concurrently. Based on the FPTable, determine the address and size of the fp array to be read in MainSegment. 
+Based on the filter, determine whether the CurSegment needs to be read. 
+After reading the corresponding entry array, use fp and fp2 fields of the entry to determine the KV to be read and match the key locally. 
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[scale=0.15]{figures/init-entry.png}
+  \caption{Initialization of the entry during insertion.}
+  \label{fig:insert-dep}
+\end{figure}
+
+
+
 
 \subsubsection{Sement Merge and Split}
 \
 
-% In order to minimize the RDMA network communication during the resizing process, all read and write operations on segments are batched. As a result, both segment merge and split can be completed within 5 RTTs, disregarding the reading of key-value pairs.
-
-Based on the dual-level Separate Segment Structure, all data flows between segments are batched. All write operations are first accumulated in the CurSegment. When all the empty entries in CurSegment are occupied, a Segment Merge is triggered to flush all the data into the MainSegment. When the data in the MainSegment accumulates to its limit, a Split operation is triggered to divide the MainSegment into two smaller MainSegments. Through batched read/write of segments, depth information cached in the entry, and batched atomic clearing for old entries, both segment merge and split can be completed within 5 RTTs.
-
-
-\textbf{Segment Merge:} When all entries in CurSegment are filled, a merge operation is triggerefd to write the data into the MainLevel and empty all entries in CurSegment. First, \filledcirc[black]{1}
- the CurSegment is read into the client's memory and the entries are sorted according to their fp.  For entries with matching fp and fp2, the corresponding kv pairs are retrieved and compared locally to remove duplicate keys. Then, \filledcirc[black]{2} the corresponding MainSegment is read into the client memory and merged with the sorted and de-duplicated CurSegment, which also includes merging of duplicate keys. The resulting merged entry array becomes the new MainSegment if it hasn't exceeded the set size limit. Subsequently, \filledcirc[black]{3} the new MainSegment is written back to the remote memory, \filledcirc[black]{4} followed by updating the pointer in the CurSegment to the MainSegment. Finally, \filledcirc[black]{5} the CurSegment is atomically cleared to empty entries by flipping the sign bit.
-
-Figure 4a illustrates an example of Segment Merge. When sorting the CurSegment, two entries with fp equal to 8 are matched and found to be duplicates, with only the latter entry being retained. During the merge operation, the entry with fp equal to 5 in the CurSegment updates the old data in the MainSegment, whereas the entry with fp equal to 8 in the CurSegment is simply appended to the MainSegment since it does not correspond to the same kv in the MainSegment. The entry with fp equal to 4, which has no duplicate entries, is added directly. In practice, since both fp and fp2 are used for matching, the need to read kv pairs is very rare.
-
-\textbf{Segment Split:} If the size of the newly generated MainSegment exceeds the set limit during a segment Merge, it needs to be further split. The segmentation principle is consistent with that of extendible hash [xxx], where each entry in the segment is divided into two roughly equal new Segments based on the local depth's bit of hash values. The pointers in the directory that point to segments are updated by comparing the global depth of the directory with the local depth of the segment being split. Based on the pre-stored depth information in the entries and the local depth of the current segment, the segment to which an entry belongs after splitting can be determined without reading actual kv pairs. 
-
-As shown in Figure 4b, the local depth of the old MainSegment is 4. According to the depth information that is updated every 4 splits, the lowest bit of depth information in the entry is currently used. Thus, all entries in the old MainSegment with the lowest depth bit of 0 are split to form a new MainSegment 00, while all entries with the lowest depth bit of 1 are split to form a new MainSegment 01. In the next round of splitting on segments 00 and 01, the first bit of the depth information is used for determination. By reducing the need to access the original key-value pairs, this approach greatly reduces network bandwidth consumption.
-
-
 \begin{figure}[tbp]
-\centering
-\subfigure[Segment Merge]
-{
-    \begin{minipage}[]{1\linewidth}
-        \centering
-        \includegraphics[scale=0.25]{figures/Segment_Merge.png}
-    \end{minipage}
-}
-\subfigure[Segment Split]
-{
- 	\begin{minipage}[]{1\linewidth}
-        \centering
-        \includegraphics[scale=0.25]{figures/Segment_SPlit.png}
-    \end{minipage}
-}
-\caption{Segment Merge and Split}
+  \centering
+  \includegraphics[width=0.4\textwidth]{figures/merge.png}
+  \caption{Segment merge. }
+  \label{fig:merge}
 \end{figure}
 
+Whenever the data accumulation in CurSegment or MainSegment reaches the size limits,
+a segment merge or split is triggered to batch transfer data to a new MainSegment. 
+Through depth information cached in the entry, and batched atomic clearing for old entries, the main flow of both segment merge and split can be completed within 5 RTTs, as shown in Figure \ref{fig:merge}.
+
+% Whenever the data accumulation in CurSegment or MainSegment reaches the size limits,
+% a segment merge or split is triggered to batch transfer data to a new MainSegment.
+% 具体地
+% When all entries in CurSegment are filled, a merge operation is triggered to write the data into the MainLevel and empty all entries in CurSegment. 
+% 通过批量读取写入entries和batched atomic clearing for old entries，the main flow of segment merge能在五个RTTs内完成。
+
+\textbf{Segment Merge:}  
+% 因为CurSegment的entry是被顺序写入的，所以重复出现的KV中只保留靠近底部的entry。
+\filledcirc[black]{1} The CurSegment is read into the client's memory and the entries are sorted according to their fp.  
+% For entries with matching fp and fp2, the corresponding KV pairs are retrieved and compared locally to remove duplicate keys. 
+% 对于fp相同的entries，检查他们是否具有相同的fp2.如果一致则读取对应的KV判断是否为duplicate key.
+% 对于fp相同的entries，如果同时具有相同的fp2，则读取对应的KV判断是否为duplicate key.
+For entries with the same fp, if they also share the same fp2, we read the corresponding KV pair to verify if it is a duplicate key.
+As the entries in CurSegment are written sequentially, only the entry closest to the bottom is retained for duplicate KVs.
+\filledcirc[black]{2} The corresponding MainSegment is read into the client memory and merged with the CurSegment. 
+% which also includes clearing of duplicate keys
+% 同样的，for entries with matching fp and fp2, 读取KV进行比较，并使用CurSegment中的entry替换MainSegment中指向重复key的entry。
+Replace the MainSegment entry that points to the duplicate key with the corresponding entry from CurSegment.
+The merged entry array becomes the new MainSegment if it hasn't exceeded the set size limit. 
+\filledcirc[black]{3} The new MainSegment is written back to the remote memory, \filledcirc[black]{4} followed by updating the pointer in the CurSegment to the MainSegment. Finally, \filledcirc[black]{5} the CurSegment is atomically cleared to empty entries by flipping the sign bit.
+
+Figure \ref{fig:merge} illustrates an example of segment merge.
+% 为了简化，这里我们仅使用fp代替fp、fp2两部分信息。
+For simplicity, we use only fp instead of both fp and fp2 in this context.
+When sorting the CurSegment, two entries with fp=8 are matched and found to be duplicates, with only the latter entry being retained. 
+During the merge operation with MainSegment, the entry with fp=4, which has no matched entries, is added directly. The entry with fp=5 in the CurSegment updates the old data in the MainSegment. The entry with fp=8 in the CurSegment is simply appended to the MainSegment since it does not correspond to the same KV in the MainSegment.  
+In practice, since both fp and fp2 are used for matching, it is rarely necessary to read KV pairs.
 
 
-\subsection{RTT-less Concurrency Control}
-\label{sec:rttless-cc}
-
-Traditional concurrency control solutions, including lock-based and lock-free schemes, both suffer from the problem of introducing additional RTT on disaggregated memory. As shown in Figure 5, lock-based solutions require additional steps of acquiring and releasing locks, while re-read based solutions require additional steps of re-reading buckets after write operations are completed, both resulting in additional network communication and increased write operation latency. In order to optimize the write operation latency, we propose an RTT-less concurrency control solution using append write and coroutine technology.
-
-
-
-\textbf{Append Write:} In LSM and other hierarchical storage structures, the use of append write strategy can convert random writes to storage devices into sequential writes. However, we have observed that append write strategy also significantly simplifies the concurrent logic of write operations. Under append write strategy, all data is directly appended to the current segment, and only one client can successfully compete for the first empty entry at any given time, eliminating the need to lock the segment. For duplicate keys inserted into the same segment, since the latest key only appears at the end of the segment, search operations can easily obtain consistent results. The write strategy using append write can avoid the additional RTT caused by locking operations and re-reading checks.
-
-\textbf{Zero-wait Write:} Coroutines enable concurrent execution of multiple tasks within a single thread, which can significantly reduce the latency of asynchronous I/O. As mentioned in Section 2.1, RDMA requests are divided into two stages: post and wait-poll. By using coroutines, we have implemented a zero-wait write approach, which enables the immediate return of a write operation after submitting an RDMA request (which only requires accessing local memory), thus reducing network overhead. Separate Segment Structure introduces a series of additional structures such as fp2, fp table, etc. in order to balance read performance, and the update operation of these data loses the latency advantage brought by append write. By using zero-free write, we hide the additional updates to fp2 and fp filter in coroutines scheduling.
-
-The process of RTT-less Concurrency Control is illustrated in Figure 5c. In the first RTT, the client reads the metadata and entries of the corresponding CurSegment from remote memory. In the second RTT, the client selects the first empty slot based on the corresponding sign bit in the Segment header and occupies it using an RDMA cas operation. If the cas operation succeeds, the main process of the write operation is completed, and subsequent updates to fp2 and fp bitmap are performed using zero-wait write. The client returns immediately after posting the RDMA request. By using append write strategy and zero-wait write, the latency of insert operations is reduced to 2 RTTs.
-
-
-% \begin{figure}[t]
+% \begin{figure}[tbp]
 % \centering
-% \begin{minipage}[b]{0.45\linewidth}
-%   \centering
-%   \includegraphics[scale=0.2]{figures/lock-based-cc.png}
-%   \caption*{(a) Lock Based CC}
-%   \label{fig:image_a}
-% \end{minipage}
-% \hfill
-% \begin{minipage}[b]{0.45\linewidth}
-%   \centering
-%   \includegraphics[scale=0.2]{figures/re-read-cc.png}
-%   \caption*{(b) Re-Read Based CC}
-%   \label{fig:image_b}
-% \end{minipage}
-
-% \vspace{0.5cm}
-
-% \begin{minipage}[b]{1\linewidth}
-%   \centering
-%   \includegraphics[scale=0.2]{figures/RTT-less-CC.png}
-%   \caption*{(c) RTT-less CC}
-%   \label{fig:image_c}
-% \end{minipage}
-% \caption{RTT-less Concurrency Control.}
-% \label{fig:image}
+% \subfigure[Init of depth\_info]
+% {
+%     \begin{minipage}[]{1\linewidth}
+%         \centering
+%         \includegraphics[scale=0.15]{figures/insert-dep.png}
+%     \end{minipage}
+%     \label{fig:insert-dep}
+% }
+% \subfigure[Segment Split]
+% {
+%  	\begin{minipage}[]{1\linewidth}
+%         \centering
+%         \includegraphics[scale=0.15]{figures/split.png}
+%     \end{minipage}
+%     \label{fig:split}
+% }
+% \caption{Segment Split. }
+% \label{fig:split}
 % \end{figure}
+
+
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=0.4\textwidth]{figures/split.png}
+  \caption{Segment split. }
+  \label{fig:split}
+\end{figure}
+
+\textbf{Segment Split:} 
+In \filledcirc[black]{2} of segment merge process, if the size of the newly generated MainSegment exceeds the size limit, it needs to be further split. 
+% 因为entry中4位dep的限制，我们将segment split以4次为一个周期进行组织。
+% 当进行插入操作时，hash value以四个bits进行分组，对应每个split round使用的depth\_info.
+% 根据当前CurSegMeta中的local\_depth除以4确定当前所处的split round，并从hash value选择对应的depth\_info填入到entry的dep字段。
+% 使用depth\_info中当前Segment local\_depth mod 4对应的bit来选择每个entry的目的地。
+First, calculate \textit{i} by local\_depth mod 4, and get \textit{i}-th bit of depth\_info to select the destination of each entry.
+% Based on the local\_depth of current segment, use the bit at local\_depth round 4 of depth\_info to selects the destination of each entry.
+% 在Split操作转移entry时，根据local\_depth确定使用depth\_info的哪一位。
+% use the bit of depth\_info at local\_depth mod 4 to selects the destination of each entry.
+% 在clients划分好两个新MainSegment之后，使用RDMA WRITE批量写入到远端内存。
+After splitting entries into two new MainSegments in clients, use RDMA \texttt{WRITE} to bulk write them to the remote memory.
+% 每经过4次splits，depth\_info中存放的hash信息被消耗完。此时读取entry对应的kv数据,重新计算hash值后提取当前local\_depth开始的4位hash值作为新depth\_info写入。
+% 使用当前的local\_depth在重新计算的hash值中提取新depth\_info。
+After every four segment split processes, the destination information stored in depth\_info is consumed. 
+In this case, the KV pair corresponding to each entry is retrieved, and the hash value is recalculated. 
+% 使用当前的local\_depth计算split round，在hash value中重新提取depth\_info.
+Calculate the split round using the current local\_depth and re-fetch depth\_info from the hash value. 
+% The new depth\_info is then extracted by selecting the 4-bit hash value starting from the current local\_depth and written as a replacement for the previous depth\_info.
+
+An example is shown in Figure \ref{fig:split}, the local\_depth of the old MainSegment is 5, so the 1st bit (5 mod 4) of depth info is used. Thus, all entries in the old MainSegment with the 1st depth bit of 0 are split to form a new MainSegment 00, while all entries with the 1st depth bit of 1 are split to form a new MainSegment 01. In the next splitting on segments 00 and 01, the 2nd bit of the depth information is used. 
+
+
+\subsection{RTT-less Concurrency Control} \label{sec:rttless-cc}
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=0.45\textwidth]{figures/wait-free-write.png}
+  \caption{Zero-wait write. }
+  \label{fig:wait}
+\end{figure}
+
+% \begin{figure}[htbp]
+%   \centering
+%   \includegraphics[width=0.45\textwidth]{figures/zero-wait-write.png}
+%   \caption{zero wait write. }
+%   \label{fig:split}
+% \end{figure}
+
+Traditional concurrency control strategies, including lock-based and lock-free schemes, both suffer from the problem of introducing additional RTTs. 
+As shown in Figure \ref{fig:cc-compare}, lock-based strategies require additional steps of acquiring and releasing locks, while re-read based strategies require additional steps of re-reading buckets after write operations are completed, both resulting in additional network communication and increased insert operation latency. 
+In order to reduce the write latency, we propose an RTT-less concurrency control solution using append write and coroutine technology.
+
+\textbf{Append write:} In the log-structured indexes \cite{lsm, Flatstore,Plush}, the use of append write strategy can convert random writes to storage devices into sequential writes. However, we observe that the append write strategy also simplifies the concurrent logic of write operations. With append write strategy, all data is directly appended to the current segment, and only one client can successfully compete for the first empty entry at any given time, eliminating the need to lock the segment. 
+For duplicate keys inserted into the same segment, since the latest key only appears at the end of the segment, search operations can easily obtain consistent results.
+The concurrency control strategy using append write can avoid the additional RTT caused by locking operations and re-reading checks.
+
+
+\textbf{Zero-wait write:} 
+% \textbf{Coroutine Based RDMA Interface:} 
+As mentioned in \S \ref{sec:DM}, RDMA requests are split into two phases: post and poll, where  the polling stage wastes a lot of time waiting for network transmission.
+We schedule all RDMA requests using a coroutine framework, where each coroutine corresponds to a client and enables RDMA requests from different clients to be executed in a pipelined manner.
+Unlike \texttt{Read} and \texttt{CAS} operations, RDMA \texttt{Write} operations do not require a result to be returned. 
+Based on this, we design the zero-wait write interface to simplify RDMA \texttt{Write} invocation and reduce latency overhead.
+As shown in Figure \ref{fig:wait}, since RDMA requests in the same send queue are executed sequentially, all clients in the same thread share a special coroutine for sending RDMA \texttt{Write} requests.
+All write operations return immediately after sending the RDMA request to the send queue, without waiting for network transmission or completion of the operation.
+Other RDMA requests poll the results of write operations and ignore them when awakened by the coroutine framework. 
+% With the zero-wait write interface, the updates of the fp2 and fp table introduced to balance read performance are hidden from the main flow of the insert operation, reducing the latency of the insert operation to 2 RTTs.
+% With the zero-wait write interface, the updates of fp2 and filter are hidden from the main flow of the insert operation, reducing the latency of the insert operation to 2 RTTs.
+With the zero-wait write interface, the fp2 and filter updates introduced to balance read performance are hidden in the main flow of the insert operation, reducing the latency of the insert operation to 2 RTTs.
+
 
 \begin{figure}[tbp]
 \centering
+\vspace*{-0.35cm}
 \subfigure[Lock-based CC]
 {
     \begin{minipage}[]{1\linewidth}
         \centering
         \includegraphics[scale=0.25]{figures/lock-based-cc.png}
     \end{minipage}
-}
+}\vspace*{-0.35cm}
 \subfigure[Re-Read Based CC]
 {
  	\begin{minipage}[]{1\linewidth}
         \centering
         \includegraphics[scale=0.25]{figures/re-read-cc.png}
     \end{minipage}
-}
+}\vspace*{-0.35cm}
 \subfigure[RTT-less CC]
 {
  	\begin{minipage}[]{1\linewidth}
         \centering
         \includegraphics[scale=0.25]{figures/RTT-less-CC.png}
+        \label{fig:rtt-less-cc}
     \end{minipage}
 }
-\caption{RTT-less Concurrency Control.}
+\vspace*{-0.35cm}
+\caption{RTT-less concurrency control.}
+\label{fig:cc-compare}
 \end{figure}
+
+\textbf{Offset-based sliding window:}
+% \texttt{offset cache slide window}
+To mitigate the overhead of accessing the entire CurSegment during insert operations, we design a offset-based sliding window approach to reduce the access granularity.
+% 一个window对应于CurSegment中一个固定长度(e.g.,8)的连续entry数组。
+A window corresponds to a fixed-length array (8 by default) of contiguous entries in CurSegment.
+The client maintains a offset variable for each CurSegment that records the position of the entry where the CurSegment was last accessed by a insert operation.
+% Therefore, each insert operation reads a contiguous array of entries of fixed length (e.g., 8) from the offset to search locally for an empty entry. 
+% 每次写入操作,根据本地offset从CurSegment中读取一个window到本地查找empty entry.
+For each insert operation, a window is read from CurSegment based on the offset to find the empty entry locally.
+% 如果没有找到empty entry，则增加本地offset并读取下一个window进行查找。
+If the empty entry is not found, the offset is incremented by the length of one window and the next window is read for the lookup.
+% If no empty entry is found, the offset is incremented by the fixed length and the search continues in the next window. 
+% The sliding window eliminates the need to read the entire CurSegment, allowing access to the CurSegment to match the appropriate access granularity for RDMA.
+% 此外，由于追加写的写入策略，滑动窗口访问经常在第一次就可以找到空闲条目，避免了频繁的滑动？。
+% In addition, due to the append-write write policy, sliding window accesses based on offset often encounter windows containing empty entries on the first attempt.
+In addition, due to the append-write write policy, sliding window accesses often find empty entry on the first attempt, avoiding frequent sliding.
+% 将每个CurSegment中的entry数组按照一定大小(e.g., 8)划分为。客户端为每个CurSegment维护了一个offset变量，记录上一次使用的滑动窗口起始偏移。
+% Doorbell进行并发
+% 每次访问到当前窗口的最后一个empty entry时提前增加offset。
+% 使用CurSegMeta中的main\_ptr作为cache是否失效的标志。当本地缓存的main\_ptr与读取的CurSegMeta中的main\_ptr不同时，判断本地该CurSegment上发生了segment merge.据此将该CurSegment的offset重置为0.
+% 使用CurSegMeta中的main\_ptr作为offset是否过时的标志。
+
+% 增加对lock-free的描述？no need to lock CurSegment？ all 
+The process of RTT-less concurrency control is illustrated in Figure \ref{fig:rtt-less-cc}. 
+% In the first RTT, the client reads CurSegment from remote memory. 
+% In the first RTT, the client reads the metadata and entries of the corresponding CurSegment from remote memory.
+% 在第一个RTT中，根据本地的offset，客户端使用一个doorbell指令，并发地从远程内存中读取相应CurSegment的元数据和条目。
+In the first RTT, depending on the offset, the client uses doorbell batching to concurrently read the metadata and entries from the CurSegment in the remote memory.
+In the second RTT, the client selects the first empty entry based on the sign bit in the CurSegMeta and occupies it using an RDMA \texttt{CAS} operation. 
+If the \texttt{CAS} operation succeeds, the client uses zero-wait write to post modifications to fp2 in the tail of entry and fiter in CurSegMeta, and then returns.
+In summary, compared to lock-based (Figure \ref{fig:cc-compare} a) and re-read based (Figure \ref{fig:cc-compare} b) schemes,  RTT-less concurrency control significantly reduces the extra RTTs and has lower latency. 
+% 可以看到，相比于基于锁（a）和基于Re-read的方案，RTT-less concurrency control明显减少了额外RTT，降低了延迟
 
 
 \subsection{Filter and Cache}
 \label{sec:cache_filter}
 
-% The Separate Segment Structure and RTT-less CC provide many advantages, such as batch-splitting, high space utilization, and low write latency. However, they also introduce challenges such as read amplification in write operations and longer read processes. To accelerate the read and write processes of separate, we have introduced a compact Filter structure on the Memory side and designed a delicate Cache\footnote{Since all clients on a compute node share a single cache, the space consumption is relatively small, typically only a few tens of megabytes.} structure on the Compute Pool side.
 
-The hierarchical structure inevitably leads to a decrease in read performance, and although the Separate Segment Structure reduces the number of levels that need to be accessed, further optimizations are still needed to improve read performance. As mentioned in Section 3.2, to speed up read access to the hierarchical structure, we designed a filter for CurSegment and a Client Cache on the computation side to reduce unnecessary RDMA access. However, considerint that CurSegment needs to be frequently modified and the limited memory resources on computation side, designing a suitable filter structure for it is not an easy task.
-
-
-\subsubsection{FP BitMap}
-\
-% 要不要加个BitMap和其他filter的图
-
-Traditional filter structures such as Bloom filters[x], Quotient filters[x], and Cuckoo filters[x] use multiple hash functions to calculate the position of a given key in the filter array, and then write a 1 to the corresponding bit at that position. This result in multiple network communications on disaggregated memory architecture, which leads to a significant increase in write latency. Additionally, Bloom filter and its variants suffer from high space overhead. Based on the inspiration from using fp for accessing Sorted MainSegment, we have introduced a fp bitmap as a filter for accessing the CurSegment. The fp bitmap records the occurrence of the fp field in the CurSegment and is updated for each insertion operation using RDMA write to modify the corresponding bit at the current kv's fp to 1. During a read access, we first read the fp bitmap in the CurSegment header and only proceed to read the complete CurSegment entry array when the corresponding fp bit is set to 1. Using an fp bitmap as a filter for accessing the CurSegment has two significant advantages:
-
-\textbf{Low space overhead}: Using only the fingerprint to determine set membership, instead of the full key-value pair, can greatly reduce the size of the set that the filter needs to process, thereby reducing the filter's space overhead. Moreover, The fp bitmap has a small space overhead compared to other traditional filter structures, such as Bloom filter and its variants. The fp bitmap only needs to store a bit for each fp field in the CurSegment, resulting in a space overhead of only 1x, while Bloom filter and its variants can have a space overhead of 5x or more[x]. 
-
-\textbf{Minimal modification and read}: Only one modification operation is required for each insertion operation. Bloom filter requires modifying multiple bits corresponding to different hash functions, while Cuckoo filter and Quotient filter require eviction and writing operations for each insertion. In contrast, a fp bitmap as a filter only requires one modification operation using RDMA write to modify the corresponding fp bit. Similarly, during read operations, it is not necessary to read the entire Bloom filter when performing membership checks. Only a single bit needs to be read and checked locally, greatly reducing read amplification.
+The leveling structure inevitably leads to degraded read performance. To speed up read operations, we design a filter for CurSegment and a client cache for MainSegment on the computation side to reduce unnecessary RDMA access. 
+% 为了保持低写延迟和低空间开销，我们为两者设计了更紧凑的结构。
+To maintain low write latency and low space overhead, we use more compact structures for both.
 
 
-\subsubsection{Client Cache}
+\subsubsection{FP filter for Cursegment}
 \
 
-Although RTT-CC and filters reduce the number of RDMA operations required for insert and get operation, performing each read and write operation directly on the entire CurSegment and MainSegment would still result in significant read amplification. Furthermore, using the extendible hash approach inevitably introduces directory access and split consistency checks. To reduce the granularity and bandwidth consumption of accessing the CurSegment and MainSegment, as well as to minimize access to the Directory, we implement Directory Cache and FPTable Cache on the client side.
+We adopt an bitmap structure as the filter instead of hash-based filter for read access to CurSegment. Because traditional hash-based filter structures (e.g., Bloom filter\cite{Partioned-BloomFilter,Count-BloomFilter}, Quotient filter\cite{Quotient-filters,Quotient-filters-basic} , Cuckoo filter\cite{Cuckoo-Filter,Chucky}) use multiple hash functions to compute a series of positions, which results in multiple network communications on disaggregated memory architecture.
+Additionally, Bloom filter and its variants make a trade-off between space overhead and false positive rate \cite{DBLP:journals/corr/abs-2106-04364}. 
+The bitmap records all fps that appear in CurSegment, and the i-th bit equals 1 means that the entry with fp=i exists in CurSegment.
+For insert operation, after writing the new entry, we modify the bit of the fp corresponding to the key to 1. 
+% For search operations, use doorbell batching to read the MainSegment entries and the bitmap of the CurSegment concurrently, 仅当bitmap中fp对应的bit为1时才读取CurSegment的entry数组.
+For search operations, use doorbell batching to read the MainSegment entries and the bitmap of the CurSegment concurrently, and read the array of CurSegment entries only if the bit corresponding to fp in the bitmap is 1.
+Using a bitmap as the fp filter has two significant advantages:
+1) Low space overhead. 
+The bitmap is more space-efficient with a more than 5$\times$ less memory consumption per element than Bloom filter or others \cite{DBLP:journals/corr/abs-2106-04364}. In addition, using only the fp instead of the hash value can greatly reduce the size of the filter.
+2) Minimal modification. Only one modification operation for one bit in the bitmap is required for each insert operation. 
+
+% \textbf{Low space overhead}: 
+% Using only the fp to determine set membership, instead of the full hash value, can greatly reduce the size of filters (4 times). 
+% Using only the fp for membership test, instead of the full hash value, 能极大减少filter需要处理的数据集大小(e.g., 4倍的数据量缩小)。而我们使用的filter仅需要处理出现在CurSegment中的数据，所以仅在filter中存储fp信息，仅带来微弱的误判率提升。
+% 同时Bitmap作为一个filter结构，相比于bloomfilter等其他基于多hash映射的过滤器，具有更小的空间开销。
+% The fp bitmap only needs to store a bit for each fp field in the CurSegment, resulting in a space overhead of only 1x, while Bloom filter and its variants can have a space overhead of 5x or more[x]. 
+% Moreover, The fp bitmap has a small space overhead compared to other traditional filter structures, such as Bloom filter and its variants. The fp bitmap only needs to store a bit for each fp field in the CurSegment, resulting in a space overhead of only 1x, while Bloom filter and its variants can have a space overhead of 5x or more[x]. 
+
+% \textbf{Minimal modification and read}: 
+% \textbf{Minimum read/write amplification}: 
+% Only one modification operation is required for each insertion operation. Bloom filter requires modifying multiple bits corresponding to different hash functions, while Cuckoo filter and Quotient filter require eviction and writing operations for each insertion. In contrast, a fp bitmap as a filter only requires one modification operation using RDMA \texttt{Write} to modify the corresponding fp bit. Similarly, during read operations, it is not necessary to read the entire Bloom filter when performing membership checks. Only a single bit needs to be read and checked locally, greatly reducing read amplification.
+
+
+\subsubsection{Cache for MainSegment}
+\
+% 分成两部分：介绍cache，空间高效
+% RACE；Directory -> RTT ; 减少这个RTT，Directory Cache。
+% fp bitmap
+% cur_seg_ptr；cache失效。
+% fp table解释作用；
+
+% 一个thread下的所有clients共享cache。（性能和每个clients单独使用一个cache性能相近）
+% 因而为每个thread保存一个cache。
+% 16 * (48*(1<<17))/(1<<20) = 96 MB; 对于一台compute node是可以接受的。
+% 
+
+% 在client端，除了为Directory设置了缓存以外，我们为MainSegmetn缓存了FPTable.
+% FPTable是一个静态的数据结构，只有在segment merge发生时才会被整体替换，所以适合被缓存。
+% 
+% FPTable需要存放MainSegment中fp的分布情况，以便search操作快速定位fp对应数组的起始位置和大小。
+% 最navie的做法，就是为每个fp值记录其对应的entry数目。在search操作时，从头开始遍历entry table并累加记录的entry数目，直到遇见给定fp。
+% 然后这样的做法带来巨大的空间开销，不适合compute端紧张的内存资源。
+% 我们
+% Therefore, we propose a compact delta-based fp table scheme. Due to the uniformity of the hash distribution, the number of entries within each FP interval in the MainSegment is very close (in our testing process, the average data skewness is less than 20\%). Therefore, we only need to reset a new record point when the deviation of entry data exceeds the range estimated according to the average value. This record point represents the new starting offset of the subsequent FPs, which is the delta. As shown in Figure 6, the delta-based reduces the number of required entries to just 32, significantly reducing the storage overhead.
+
+% Although RTT-CC and filters reduce the number of RDMA operations required for insert and get operation, performing each read and write operation directly on the entire CurSegment and MainSegment would still result in significant read amplification. 
+% Furthermore, using the extendible hash approach inevitably introduces directory access and split consistency checks. To reduce the granularity and bandwidth consumption of accessing the CurSegment and MainSegment, as well as to minimize access to the Directory, we implement Directory Cache and FPTable Cache on the client side.
 % We save Directory Cache and FPTable Cache on the client side to reduce the granularity and bandwidth consumption of access to the CurSegment and MainSegment, while also reducing access to the Directory.
+% 一台machine上的所有server共享一个cache。
 
 \begin{figure}[tbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{figures/CacheSlot.png}
-  \caption{CacheSlot. }
-  \label{fig:segmentstructure}
+  \includegraphics[width=0.45\textwidth]{figures/CacheSlot.png}
+  \caption{CacheSlot structure. }
+  \label{fig:cacheslot}
 \end{figure}
 
-\textbf{Directory Cache.} The directory cache is used to reduce the granularity of accessing CurSegment and to minimize access to the Directory. Specifically, the Directory Cache stores the \textit{offset} of the last accessed free entry for each CurSegment. For each insert operation,  a fixed-length (e.g., 8) contiguous entry array is read from the CurSegment at the offset to search for an empty entry locally. If an empty entry is not found, the offset is increased, and the search continues in the next contiguous entry array using a sliding window approach. This approach eliminates the need to read the entire CurSegment to find an empty entry during write operations. Furthermore, due to the append write mechanism, the offset often hits an empty entry on the first attempt. The directory cache also save pointers to the corresponding CurSegment and MainSegment to reduce the need for remote directory access when accessing the segments. Unlike RACE [x], we use the sign bit and main\_seg\_ptr as consistency checks for the cache, due to the presence of merge operations. Whenever the main\_seg\_ptr read from the CurSegment's header does not match the local main\_seg\_ptr, the sign, offset, and main\_seg\_ptr in the Directory Cache are updated.
+% \textbf{Directory Cache.} 
+% The directory cache用于减少对远端Directory的访问。同时减少
+% Directory Cache缓存了XXX。
+% 使用main_seg_ptr作为判断的一句。
+% The directory cache is used to reduce the granularity of accessing CurSegment and to minimize access to the Directory. Specifically, the Directory Cache stores the \textit{offset} of the last accessed free entry for each CurSegment. For each insert operation,  a fixed-length (e.g., 8) contiguous entry array is read from the CurSegment at the offset to search for an empty entry locally. If an empty entry is not found, the offset is increased, and the search continues in the next contiguous entry array using a sliding window approach. This approach eliminates the need to read the entire CurSegment to find an empty entry during write operations. Furthermore, due to the append write mechanism, the offset often hits an empty entry on the first attempt. The directory cache also save pointers to the corresponding CurSegment and MainSegment to reduce the need for remote directory access when accessing the segments. Unlike RACE, we use the sign bit and main\_seg\_ptr as consistency checks for the cache, due to the presence of merge operations. Whenever the main\_seg\_ptr read from the CurSegment's header does not match the local main\_seg\_ptr, the sign, offset, and main\_seg\_ptr in the Directory Cache are updated.
 
-\textbf{FPTable Cache}. The FPTable cache is implemented to reduce the granularity of accessing the MainSegment, which is significantly larger than the CurSegment. Since all entries in the MainSegment are sorted by their fingerprint, reading the entire MainSegment would lead to significant read amplification. The most intuitive approach is to store the number of entries corresponding to each fp and calculate the offset of the corresponding fp in the MainSegment during each read access, similar to the offset field in the Directory Cache. However, as illustrated in Figure 6, this uncompact format for the FPTable would impose a significant storage overhead(256 bytes per FPTable). Therefore, we propose a compact delta-based fp table scheme. Due to the uniformity of the hash distribution, the number of entries within each FP interval in the MainSegment is very close (in our testing process, the average data skewness is less than 20\%). Therefore, we only need to reset a new record point when the deviation of entry data exceeds the range estimated according to the average value. This record point represents the new starting offset of the subsequent FPs, which is the delta. As shown in Figure 6, the delta-based reduces the number of required entries to just 32, significantly reducing the storage overhead.
+% \textbf{FPTable Cache}. 
+% The FPTable cache is implemented to reduce the granularity of accessing the MainSegment, which is significantly larger than the CurSegment. Since all entries in the MainSegment are sorted by their fingerprint, reading the entire MainSegment would lead to significant read amplification. The most intuitive approach is to store the number of entries corresponding to each fp and calculate the offset of the corresponding fp in the MainSegment during each read access, similar to the offset field in the Directory Cache. However, as illustrated in Figure 6, this uncompact format for the FPTable would impose a significant storage overhead(256 bytes per FPTable). Therefore, we propose a compact delta-based fp table scheme. Due to the uniformity of the hash distribution, the number of entries within each FP interval in the MainSegment is very close (in our testing process, the average data skewness is less than 20\%). Therefore, we only need to reset a new record point when the deviation of entry data exceeds the range estimated according to the average value. This record point represents the new starting offset of the subsequent FPs, which is the delta. As shown in Figure 6, the delta-based reduces the number of required entries to just 32, significantly reducing the storage overhead.
  
 
 % In order to speed up read access to the MainSegment, the MainSegment is organized in a structure sorted by the file pointer (FP). However, directly reading the entire MainSegment would cause significant read amplification. Storing the number of entries for each FP, as shown in Figure 6, would be the most straightforward approach, but it would consume a large amount of storage space (256 bytes per FPTable). This would exacerbate the memory resource constraints on the computing side. Therefore, we propose a compact delta-based FP table scheme. Due to the uniformity of the hash distribution, the number of entries within each FP interval in the MainSegment is very close (in our testing process, the average data skewness is less than 20\%). This is because data skewness only exceeds a certain range, such as 16 entries, after a continuous range of FPs. Therefore, we only need to reset a new record point every certain FP interval when the deviation of entry data exceeds the range estimated according to the average value. This record point represents the new starting offset of the subsequent FPs, which is the delta. As shown in Figure 6, the delta-based scheme can greatly reduce the storage space required for the FP table.
 
 
 
-\section{EVALUATION}
 
-% In this section, we test SepHash and other comparison to answer the following questions:
+%% 
 
-% \begin{itemize}
-%     \item How does SepHash perform under write-intensive workloads? How do various techniques employed in SepHash contribute to overall performance?
-%     \item How does SepHash's write latency compare to other indexes? Has SepHash achieved achieved the goal of low write latency?
-%     \item How does SepHash's read performance compare to other indexes? Has it achieved the goal of balanced read performance?
-%     \item How do various optimization techniques impact internal factors such as RTT, read amplification, and split frequency on SepHash?
-%     \item How does the space utilization of SepHash compare with other indexes?
-%     \item How does different key sizes impact index performance?
-% \end{itemize}
-
-\subsection{Experimental Setup}
-\
-
-\textbf{Hardware Platform.} We run all experiments on 8 machines, each with two 26-core Intel Xeon Gold 5218R CPUs, 384 GiB DRAM,and one 100Gbps Mellanox ConnectX-5 IB RNIC. Each RNIC is connected to a 100Gbps Mellanox IB switch. One machine is used for emulating the memory pool. To emulate the weak compute power, CPUs in the memory pool are only used for registering memory to RNICs during the initialization stage and do not involve in any requests of hashing indexes. The memory is registered with huge pages to reduce the page translation cache misses of RNICs [13]. The other machine is used for building the compute pool in which each CPU core serves as a client. Since current RNIC hardware does not support remote memory allocation in real time, we enable clients to pre-allocate all memory that future insertion and update requests require, which can also reduce the memory allocation latency in the critical path of request execution.
-
-\textbf{Workloads.} We use micro-benchmarks[x] and YCSB[x] to evalute the performance of different hash indexes. For most tests, we used 16-byte keys and 32-byte values that are representative of key-value stores in real-world workloads [xxx]. We use four YCSB workloads with different read/write ratio as shown in table 2.
-% We also tested the impact of different key sizes on performance.
-% 暂时不确定要不要测key-size的影响
-
-% \begin{table}[tbp]
-% \centering
-% \caption{YCSB Workloads}
-% \label{tab:workload_ratios}
-% \begin{tabular}{|c|c|c|c|}
-% \hline
-% Workload & Insert & Update & Distribution \\ \hline
-% A & 0.5 & 0.5 & zipfian \\ \hline
-% B & 0.95 & 0.05 & zipfian \\ \hline
-% C & 1.0 & 0.0 & zipfian \\ \hline
-% D & 0.95 & 0.05 & latest \\ \hline
-% \end{tabular}
-% \end{table}
-\begin{table}[htbp]
+\begin{table}[tbp]
 \centering
-\caption{Workload Ratios}
+\caption{YCSB Workload}
 \label{tab:workload_ratios}
 \begin{tabular}{|c|c|c|c|c|}
 \hline
@@ -497,8 +823,52 @@ D & 0.95 & 0 & 0.05 & latest \\ \hline
 \end{tabular}
 \end{table}
 
+\section{EVALUATION} \label{eva}
+
+% In this section, we evaluate  SepHash to answer the following questions:
+
+
+% In this section, we show our evaluation of ADSTS in detail. The implementation of ADSTS and experimental settings are introduced firstly in \S \ref{im} and \S \ref{set}. Then \S \ref{pe} and \ref{over} show the performance evaluation and system overhead results. Finally, \S \ref{pi} and \S \ref{to} show the the effects of parameter identification and training optimization.
+
+% In this section, the  evaluation results are presented to demonstrate the advantages of SepHash.
+% Specifically, extensive experiments are conducted to answer the following questions:
+% \begin{itemize}
+%     \item What latency and throughput can DComp acheive on an idle cluster and on a busy cluster with co-running applications? How does it compare to naive RocksDB? How much energy consumption can be reduced? (\ref{sec:micro})
+%     \item How do various levels of offload contribute to single compaction and overall performance? (\ref{sec:micro})
+%     \item How does DComp perform under various macro benchmarks? (\ref{sec:ycsb})
+%     \item What is the impact of different parameter configurations on the performance gains of DComp? (\ref{sec:impact})
+% \end{itemize}
+
+\subsection{Experimental Setup}
+
+
+% 修改描述，和race有点像
+\textbf{Hardware Platform.} We run all experiments on 8 machines, each with two 26-core Intel Xeon Gold 5218R CPUs, 384 GiB DRAM, and one 100Gbps Mellanox ConnectX-5 IB RNIC. Each RNIC is connected to a 100Gbps Mellanox IB switch. 
+% 这几句太像了
+% One machine is used for emulating the memory pool\cite{race}. 
+% To emulate the weak compute power, CPUs in the memory pool are only used for registering memory to RNICs during the initialization stage and do not involve in any requests of hashing indexes. 
+% The memory is registered with huge pages to reduce the page translation cache misses of RNICs \cite{Farm}. 
+% 我们使用一台机器用来模拟内存池，并限制其CPU资源为一个CPU core，仅用于索引初始化阶段的内存注册\cite{race}。
+We use a machine to simulate a memory pool and limit its CPU resources to a single CPU core, which is only used for memory registration during the index initialization stage \cite{race}.
+% 所有内存使用huge pages方式注册以减少网卡page translation cache misses \cite{Farm}.
+The memory is registered using hug pages to reduce NIC page translation cache misses \cite{Farm}.
+% 这里不能说each cpu core代表一个clients 后面都说了一个协程代表一个clients
+% The other machine is used for building the compute pool in which each CPU core serves as a client. 
+% 其他machine构成了compute pools。
+% Since existing RNIC hardware does not support remote memory allocation, we enable clients to pre-allocate all memory that future insertion and update requests require, which can also reduce the
+memory allocation latency in the critical path of request executio
+% \hline
+% Workload & Insert & Update & Distribution \\ \hline
+% A & 0.5 & 0.5 & zipfian \\ \hline
+% B & 0.95 & 0.05 & zipfian \\ \hline
+% C & 1.0 & 0.0 & zipfian \\ \hline
+% D & 0.95 & 0.05 & latest \\ \hline
+% \end{tabular}
+% \end{table}
+
+
 \textbf{Comparisons.} 
-We compared SepHash with three distributed hash indexes. RACE is the only distributed hash designed natively for disaggregated memory, and because RACE is not open-sourced, we implemented it from scratch. Clevel and plush are single-machine hash indexes optimized for write performance using a hierarchical hash structure and we port them to disaggregated memory by replacing persistent memory read/write with RDMA read/write, to verify the performance of hierarchical hash structures on memory disaggregation. For RACE, based on previous work, we used a configuration of 8 entries per bucket to match the granularity of RDMA access. And for all comparisons, we maintained a similar number of initial entries for each hash table, ensuring that the conditions for the first split were comparable. Additionally, clevel used a client as a background thread to execute expansion operations.
+We compared SepHash with three distributed hash indexes. RACE is the only distributed hash designed natively for disaggregated memory, and because RACE is not open-sourced, we implemented it from scratch. Clevel and plush are single-machine hash indexes optimized for write performance using a hierarchical hash structure and we port them to disaggregated memory by replacing persistent memory read/write with RDMA \texttt{Read}/\texttt{Write}, to verify the performance of hierarchical hash structures on memory disaggregation. For RACE, based on previous work, we used a configuration of 8 entries per bucket to match the granularity of RDMA access. And for all comparisons, we maintained a similar number of initial entries for each hash table, ensuring that the conditions for the first split were comparable. Additionally, clevel used a client as a background thread to execute expansion operations.
 
 % RACE employs 128 buckets per segment, with a total segment size of 12KB. Cluster and clevel used an initial table size of 2048 buckets, while plush used an initial table size of 16 buckets per group and 128 groups. SepHash used a CurSegment size of 1KB and 113 entries, as well as a MainSegment size 16 times that of CurSegment. Additionally, clevel used a client as a background thread to execute expansion operations.
 
@@ -508,162 +878,226 @@ We compared SepHash with three distributed hash indexes. RACE is the only distri
 \subsubsection{Micro-Benchmarks}
 \
 
-First, we use micro-benchmarks to test the basic write throughput of SepHash and the compared systems. We insert 100 million kv data into different hash indexes and record their throughput. At the same time, we change the number of clients to test their performance under concurrent writes. When the number of clients is less than 16, they are run on the same client machine. When the data is 32, 64, and 128, they are run on 2, 4, and 8 servers respectively. Each client runs using 1 to 4 coroutines, and the configuration is determined by selecting the number of coroutines that provides the highest performance.
+First, we use micro-benchmarks to test the basic write throughput of SepHash and the compared systems. We insert 100 million KV data into different hash indexes and record their throughput. At the same time, we change the number of clients to test their performance under concurrent writes. When the number of clients is less than 16, they are run on the same client machine. When the data is 32, 64, and 128, they are run on 2, 4, and 8 servers respectively. Each client runs using 1 to 4 coroutines, and the configuration is determined by selecting the number of coroutines that provides the highest performance.
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=.45\textwidth]{figures/micro_bench_insert.pdf}
+  \caption{Mirco-benchmarks throughput. }
+  \label{fig:micro_bench_insert}
+\end{figure}
 
 Figure 7 depicts the concurrent throughput of the various indexes under write-intensive workloads. Overall, SepHash exhibits the best performance among all systems, with its write throughput showing good scalability with increasing numbers of concurrent clients. RACE's write performance gradually reaches a bottleneck as the number of concurrent clients increases due to its significant overhead for scaling. Clevel's write and scaling performance is also excellent due to the presence of background scaling threads that allow foreground threads to operate seamlessly. However, due to its longer insertion path, Clevel's write performance lags behind SepHash. Plush, on the other hand, has excellent single-threaded write performance, but its write scaling performance is poor due to the use of lock mechanisms.
 
 % 提高多少多少倍
 
-\begin{figure}[tbp]
-  \centering
-  \includegraphics[width=0.5\textwidth]{figures/micro_bench_insert.pdf}
-  \caption{Mirco-benchmarks throughput. }
-  \label{fig:segmentstructure}
-\end{figure}
-
- 
-\subsubsection{YCSB WorkloadS}
+\subsubsection{YCSB Workloads} \label{ycsb}
 \
+% B/D负载，insert/update增多时，性能下降。
+% D/latest负载下，读性能下降严重。因为需要更多的访问CurSegment。
+We conducted performance evaluations of different hash indexes under a mixed workload with varying read-write ratios using the YCSB benchmark. To begin, we inserted 100 million key-value pairs into the hash tables, followed by 10 million tests. We employed four distinct workload ratios, as depicted in Table 2. Our results indicate that RACE and SepHash outperformed Plush and Clevel across all tested workloads, exhibiting significantly higher performance. RACE exhibits excellent performance under all workloads since the update operation only involves updating the corresponding pointer after a search and does not require modifying the index structure. Therefore, all workloads for RACE are read-intensive workloads, which benefits from its search-friendly structure. SepHash achieves performance similar to RACE by optimizing read granularity and reducing read amplification through the use of filters and caches. However, Plush and Clevel perform poorly due to their multi-level search strategies, which lead to significant read amplification.
 
 \begin{figure}[tbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{figures/ycsb_performance.pdf}
+  \includegraphics[width=0.45\textwidth]{figures/ycsb_performance.pdf}
   \caption{YCSB Performance. }
-  \label{fig:segmentstructure}
+  \label{fig:ycsb}
 \end{figure}
-
-We conducted performance evaluations of different hash indexes under a mixed workload with varying read-write ratios using the YCSB benchmark. To begin, we inserted 10 million key-value pairs into the hash tables, followed by 1 million tests. We employed four distinct workload ratios, as depicted in Table 2. Our results indicate that RACE and SepHash outperformed Plush and Clevel across all tested workloads, exhibiting significantly higher performance. RACE exhibits excellent performance under all workloads since the update operation only involves updating the corresponding pointer after a search and does not require modifying the index structure. Therefore, all workloads for RACE are read-intensive workloads, which benefits from its search-friendly structure. SepHash achieves performance similar to RACE by optimizing read granularity and reducing read amplification through the use of filters and caches. However, Plush and Clevel perform poorly due to their multi-level search strategies, which lead to significant read amplification.
 
 \subsection{Space Overhead Analysis}
 
 % the total size of hash index; average space utiliazation of hash index;
 % Space utilization is a critical performance metric for hash indexes. 
 % 这里要不要将entry uitlization改成load factor
-\begin{figure}[tbp]
-  \centering
-  \includegraphics[width=0.5\textwidth]{figures/entry_utilization.pdf}
-  \caption{entry-utilization }
-  \label{fig:segmentstructure}
-\end{figure}
-
-\begin{figure}[tbp]
-  \centering
-  \includegraphics[width=0.5\textwidth]{figures/space_utilization.pdf}
-  \caption{space-utilization. }
-  \label{fig:segmentstructure}
-\end{figure}
 
 To compare the space overhead of different indexes, we introduce the concepts of \textit{entry utilization} and \textit{space utilization}. Entry utilization refers to the ratio of the number of entries used to store inserted data to the total number of entries in the index. Space utilization, on the other hand, refers to the ratio of the space used by the entries that point to the actual KV data to the total space used by the index. Furthermore, we focus on the average entry utilization and space utilization of the indexes rather than their maximum values, as they provide a more representative measure of the index's space efficiency over time. We calculate and analyze the entry utilization of each index and the space utilization of the index by recording the entry utilization and space utilization of the index every 1,000 KV pairs inserted, starting from the insertion of 10,000 KV pairs (which is close to the point where the index triggers its first resize operation). For Clevel, we  wait for the background rehash thread to complete before measuring the utilization metrics.
 
 Figure 9 presents the entry utilization and space utilization of the indexes. The experimental results demonstrate that SepHash consistently achieves an entry utilization and space utilization of over 90\%. And as the amount of inserted data increases, SepHash's entry utilization and space utilization further improve, as more valid data accumulates in the MainSegment, which has 100\% entry utilization and minimal metadata overhead. However, for RACE and CLevel, despite having a near-maximum entry utilization of around 90\%, their entry and space utilization sharply decrease after every resize operation, resulting in suboptimal average space utilization. Particularly for CLevel, which undergoes full-table expansion, frequent resize operations lead to an entry utilization rate below 20\%. Due to the metadata present in Directory, Segment, and Bucket, RACE experience a decline in space utilization compared to entry utilization. And Plush, which benefits from a hierarchical accumulation mechanism similar to that of SepHash, exhibits exceptional entry utilization that gradually increases with the quantity of inserted data. However, The reserved Directory space required for each additional layer and the significant number of filters retained by high-level buckets result in a significant decline in space utilization for Plush.
 
 
-
 \subsection{In-Depth Analysis}
 
 To analyze the performance of SepHash and validate its optimization design, we decompose the performance gap between RACE and SepHash by applying SepHash's optimization techniques one by one. Figures 11 and 12 depict the optimization results for write and read operations, respectively.
 
+
 \begin{figure}[tbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{figures/insert_op_breakdown.pdf}
-  \caption{insert-op-breakdown. }
-  \label{fig:segmentstructure}
+  \includegraphics[width=0.43\textwidth]{figures/entry_space_utilization.pdf}
+  \caption{space overhead utilization }
+  \label{fig:entry_space_utilization}
 \end{figure}
+
+% \begin{figure}[tbp]
+% \centering
+% \subfigure[entry\_utilization]
+% {
+%     \begin{minipage}[]{1\linewidth}
+%         \centering
+%         \includegraphics[scale=0.25]{figures/entry_utilization.pdf}
+%     \end{minipage}
+% }
+% \subfigure[space\_utilization]
+% {
+%     \begin{minipage}[]{1\linewidth}
+%         \centering
+%         \includegraphics[scale=0.25]{figures/space_utilization.pdf}
+%     \end{minipage}
+% }
+% \caption{space overhead utilization}
+% \end{figure}
+
+
+% \begin{figure}[tbp]
+% \centering
+% \subfigure[entry\_utilization]{\includegraphics[width=0.45\linewidth]{figures/entry_utilization.pdf}}
+% \hspace{0.05\linewidth}
+% \subfigure[space\_utilization]{\includegraphics[width=0.45\linewidth]{figures/space_utilization.pdf}}
+% \caption{space overhead utilization}
+% \end{figure}
+
 
 \textit{Insert Optimization.}
-In Figure 11, \textbf{+Separate Segment Structure} represents the application of Separate Segment Structure and its corresponding Segment Merge/Split indexing operations. \textbf{+inline-depth entry} indicates the introduction of inline depth information for entries, while \textbf{+rtt-less cc} represents the incorporation of append write and zero-wait RDMA write optimized by coroutine technology. The introduction of Separate Segment Structure provides comparable performance to RACE under low-concurrency conditions. Under high-concurrency conditions, SepHash leverages the support for Batch Move in Separate Segment Structure to reduce the bandwidth consumption during index resizing, enabling more concurrent operations. This results in a 1.6x performance improvement over RACE with 128 clients. The subsequent introduction of inline-depth entry further reduces the single-point RDMA read required during entry movement, doubling the performance improvement compared to Separate Segment Structure alone. This finding corroborates our analysis of the overhead of RACE expansion in background tests. Finally, the incorporation of rtt-less cc allows SepHash's insert operation to return without waiting for all DMA writes to complete, further enhancing indexing write performance to 3.3x that of RACE.
+In Figure 11, \textbf{+Separate Segment Structure} represents the application of Separate Segment Structure and its corresponding Segment Merge/Split indexing operations. \textbf{+inline-depth entry} indicates the introduction of inline depth information for entries, while \textbf{+rtt-less cc} represents the incorporation of append write and zero-wait RDMA \texttt{Write} optimized by coroutine technology. The introduction of Separate Segment Structure provides comparable performance to RACE under low-concurrency conditions. Under high-concurrency conditions, SepHash leverages the support for Batch Move in Separate Segment Structure to reduce the bandwidth consumption during index resizing, enabling more concurrent operations. This results in a 1.6x performance improvement over RACE with 128 clients. The subsequent introduction of inline-depth entry further reduces the single-point RDMA \texttt{Read} required during entry movement, doubling the performance improvement compared to Separate Segment Structure alone. This finding corroborates our analysis of the overhead of RACE expansion in background tests. Finally, the incorporation of rtt-less cc allows SepHash's insert operation to return without waiting for all DMA writes to complete, further enhancing indexing write performance to 3.3x that of RACE.
 
-\begin{figure}[tbp]
-  \centering
-  \includegraphics[width=0.5\textwidth]{figures/search_op_breakdown.pdf}
-  \caption{search-op-breakdown. }
-  \label{fig:segmentstructure}
-\end{figure}
+% \begin{figure}[tbp]
+% \centering
+% \subfigure[insert-op-breakdown]
+% {
+%     \begin{minipage}[]{1\linewidth}
+%         \centering
+%         \includegraphics[scale=0.25]{figures/insert_op_breakdown.pdf}
+%     \end{minipage}
+% }
+% \subfigure[insert-op-breakdown]
+% {
+%     \begin{minipage}[]{1\linewidth}
+%         \centering
+%         \includegraphics[scale=0.25]{figures/search_op_breakdown.pdf}
+%     \end{minipage}
+% }
+% \caption{In-depth Analysis}
+% \end{figure}
 
 In Figure 12, \textbf{base} represents the scheme of directly scanning the entire CurSegment and MainSegment for key matching, \textbf{+fptable cache} indicates the introduction of an optimized fptable for the sorted MainSegment, and \textbf{+fp filter} represents the addition of a bitmap filter to filter out unnecessary access to the CurSegment. The Base scheme exhibits performance limitations due to high bandwidth consumption from the large CurSegment and MainSegment sizes, resulting in bandwidth saturation as the number of concurrent clients increases. The adoption of an FpTable Cache approach mitigates this issue by reducing the access granularity for the MainSegment from full-table accesses to accesses corresponding to a single fingerprint (fp), thereby reducing the access granularity by a factor of 1/256. This approach significantly lowers the bandwidth demands on the underlying RDMA networking interface, enabling support for more concurrent read requests. Specifically, after implementing the FpTable Cache, the average SepHash read performance at 128 concurrent accesses exhibited a 22X improvement compared to the Base scheme without the cache. However, each read operation still requires accessing the CurSegment, which is KB in size, limiting further performance improvements. The introduction of fp filter allows negative searches of CurSeg to be avoided by only examining the header of CurSegment. Implementing the fp filter in conjunction with the FpTable Cache resulted in a 2X increase in SepHash's read performance compared to using the FpTable Cache alone, approaching the read performance of RACE..
 
+\begin{figure}[tbp]
+\centering
+\subfigure[insert-op-breakdown]{\includegraphics[width=0.46\linewidth]{figures/insert_op_breakdown.pdf}}
+\hspace{0.05\linewidth}
+\subfigure[search-op-breakdown]{\includegraphics[width=0.46\linewidth]{figures/search_op_breakdown.pdf}}
+\caption{In-depth Analysis}
+\end{figure}
+
+
+\subsection{Separate Segment Structure}
+\
+
+\begin{figure*}[t]
+  \centering
+  \begin{minipage}[t]{1\textwidth}
+    \centering
+    \subfigure[MainSegSize Insert]{\includegraphics[width=0.24\textwidth]{figures/MainSegSize-Insert.pdf}}
+    \subfigure[MainSegSize Search]{\includegraphics[width=0.24\textwidth]{figures/MainSegSize-Search.pdf}}
+    \subfigure[CurSegSize Insert]{\includegraphics[width=0.24\textwidth]{figures/CurSegSize-Insert.pdf}}
+    \subfigure[CurSegSize Search]{\includegraphics[width=0.24\textwidth]{figures/CurSegSize-Search.pdf}}
+  \end{minipage}
+  \vspace{10pt} % 设置垂直间距
+  \caption{Separate Segment Structures}
+  \label{fig:sep-segment}
+\end{figure*}
+
+In SepHash, the sizes of CurSegment and MainSegment determine the frequency of segment merges and splits, as well as the number of entries accessed during each operations, which in turn affects the overall read/write performance of the index. We used microbenchmarks to test the read/write throughput with different CurSegment and MainSegment configurations, and Figure 14 shows the results.
+
+% RDMA存在明显的访问特性。
+ We tested the read and write performance of different MainSegment sizes ranging from 8x to 64x the CurSegment size. As illustrated in Figure 14(a), the insert performance gradually improved as the MainSegment size decreased from 32x to 8x. This is because a smaller MainSegment reduces the read amplification caused by accessing the MainSegment during merges and splits. On the other hand, the 64x MainSegment size achieved better write performance than the 32x size because it reduces the frequency of splits and full table resizes. In terms of search performance, as shown in Figure 14(b), increasing the MainSegment size improved the search performance. This is because with a larger MainSegment, more reads hit in the MainSegment, and accessing a matching entry in the MainSegment only requires reading a small portion of the entry array, consuming less bandwidth compared to searching the CurSegment.
+ 
+We tested CurSegment sizes ranging from 128 bytes to 2048 bytes. Figure 14(c) depicts how SepHash's write performance varied with different CurSegment sizes. Generally, write performance improved with smaller CurSegment sizes because they result in less read amplification during merges and splits, and each insert operation accesses a smaller CurSegment. However, excessively small CurSegments cause frequent merges that lead to excessive small RDMA \texttt{Read}s, which wastes bandwidth and cannot support high concurrency. For instance, as shown in Figure 14(c), write performance degraded at 128 concurrent clients compared to the 256 byte CurSegment. Finally, we discovered that larger CurSegment sizes improved search performance, as shown in Figure 14(d), since the MainSegment size increased in proportion to the CurSegment size. 
 
 \subsection{Write latency}
 
-To test the latency of index writes, we measured the average write latency of different indexes during the load phase and run phase under the YCSB workload. To demonstrate the stability of write latency, we also tested the impact of different load data sizes on index write latency. All run phases inserted 10 million kv pairs. 
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=0.49\textwidth]{figures/write_latency.pdf}
+  \caption{Write Latency }
+  \label{fig:write-latency}
+\end{figure}
+
+% \begin{figure}[tbp]
+% \centering
+% \subfigure[load-latency]{\includegraphics[width=0.45\linewidth]{figures/load_latency.pdf}}
+% \hspace{0.05\linewidth}
+% \subfigure[run-latency]{\includegraphics[width=0.45\linewidth]{figures/run_latency.pdf}}
+% \caption{Write Latency}
+% \end{figure}
+
+% \begin{figure}[tbp]
+% \centering
+% \subfigure[load-latency]{\includegraphics[width=0.45\linewidth]{figures/load_latency.pdf}}
+% \hspace{0.05\linewidth}
+% \subfigure[run-latency]{\includegraphics[width=0.45\linewidth]{figures/run_latency.pdf}}
+% \caption{Write Latency}
+% \end{figure}
+
+To test the latency of index writes, we measured the average write latency of different indexes during the load phase and run phase under the YCSB workload. To demonstrate the stability of write latency, we also tested the impact of different load data sizes on index write latency. All run phases inserted 10 million KV pairs. 
 
 As shown in Figure 13, SepHash's write latency performance was far superior to other indexes during both the load phase and run phase. Compared to RACE, SepHash achieved up to 73\% lower write latency during the load phase and up to 60\% lower write latency during the run phase. 
 
 RACE's write latency increased significantly with the load data size during the load phase. This is because more and more split operations were triggered, consuming a large amount of network bandwidth while blocking foreground inserts. With the increase of load phase data size, RACE's write latency in the run phase actually decreased, because the load phase expanded the index sufficiently large, reducing the number of splits in the run phase. At a load data size of 10 million, RACE's write latency was lowest, almost 3x lower than at a load data size of 1 million.  In contrast to RACE, SepHash's write latency remained stable during both the Load and Run phases. This is due to SepHash's Separate Segment Structure which distributes index splits evenly across all phases of index operation, avoiding drastic fluctuations in write latency. Plush also exhibited stable write latency during both the Load and Run phases due to its use of hierarchical flushing and extendible splits for index expansion. In contrast, Clevel's insertion method which scans free entries level by level resulted in increasing levels as the amount of inserted data increased, leading to rising write latency in both the Load and Run phases. 
 
-Finally, due to the introduction of the zero-wait write technique, SepHash was able to better pipeline concurrent RDMA read and write requests, resulting in lower latency even after discounting the effects of splits. During the run phase after loading 10 million data, SepHash's write latency was still 30\% lower than RACE's.
-
-
-
-\begin{figure}[tbp]
-\centering
-\subfigure[load-latency]
-{
-    \begin{minipage}[]{1\linewidth}
-        \centering
-        \includegraphics[scale=0.5]{figures/load_latency.pdf}
-    \end{minipage}
-}
-\subfigure[run-latency]
-{
- 	\begin{minipage}[]{1\linewidth}
-        \centering
-        \includegraphics[scale=0.5]{figures/run_latency.pdf}
-    \end{minipage}
-}
-\end{figure}
-
-\subsection{Separate Segment Structure}
-
-
-\begin{figure}[tbp]
-\centering
-\subfigure[MainSegSize-Insert]
-{
-    \begin{minipage}[]{1\linewidth}
-        \centering
-        \includegraphics[scale=0.25]{figures/MainSegSize-Insert.pdf}
-    \end{minipage}
-}
-\subfigure[MainSegSize-Search]
-{
- 	\begin{minipage}[]{1\linewidth}
-        \centering
-        \includegraphics[scale=0.25]{figures/MainSegSize-Search.pdf}
-    \end{minipage}
-}
-\end{figure}
-
-\begin{figure}[tbp]
-\centering
-\subfigure[CurSegSize-Insert]
-{
-    \begin{minipage}[]{1\linewidth}
-        \centering
-        \includegraphics[scale=0.25]{figures/CurSegSize-Insert.pdf}
-    \end{minipage}
-}
-\subfigure[CurSegSize-Search]
-{
- 	\begin{minipage}[]{1\linewidth}
-        \centering
-        \includegraphics[scale=0.25]{figures/CurSegSize-Search.pdf}
-    \end{minipage}
-}
-\end{figure}
+Finally, due to the introduction of the zero-wait write technique, SepHash was able to better pipeline concurrent RDMA \texttt{Read} and \texttt{Write} requests, resulting in lower latency even after discounting the effects of splits. During the run phase after loading 10 million data, SepHash's write latency was still 30\% lower than RACE's.
 
 \subsection{Coroutine Optimization}
+\
+
+To evaluate the impact of coroutines on index performance, we conducted performance tests on indexes under different thread-coroutine configurations, with throughput normalized to the performance of a single coroutine configuration in the respective thread. We selected single-thread, 16-thread, and 128-thread configurations as representative test results, as shown in Figure 15.
+
+It can be observed that using coroutines can effectively improve index performance under a single-thread configuration, with acceleration increasing as the number of coroutines increases. However, with an increase in the number of threads, the acceleration effect of coroutines weakens due to the intensifying bandwidth consumption and the limit on concurrency allowed by the RDMA network card. 
+For instance, RACE and Clevel achieved near 3x and 2x gains respectively under 1 thread, but gains fell to 1.2x and 2x under 16 threads. Under 128 threads, additional contention from coroutines negatively impacted RACE and Plush due to their massive expansion overheads and non-concurrent RDMA locks\cite{Sherman}. In contrast, SepHash achieved ~1.5x gains with coroutines across configurations due to its efficient resize strategies and highly concurrent access policies, demonstrating ample scalability and underutilization.
+
+% 加一张协程对读的影响
+
+% \begin{figure}[tbp]
+%   \centering
+%   \includegraphics[width=0.49\textwidth]{figures/plot_times.pdf}
+%   \caption{Coroutine Improvement }
+%   \label{fig:plot_times}
+% \end{figure}
+
 
 \begin{figure}[tbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{figures/plot_times.pdf}
-  \caption{coroutine improvement }
-  \label{fig:segmentstructure}
+  \includegraphics[width=0.35\textwidth]{figures/plot-times-insert.pdf}
+  \caption{coroutine improvement for insert}
+  \label{fig:coroutine-insert}
 \end{figure}
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=0.35\textwidth]{figures/plot-times-search.pdf}
+  \caption{coroutine improvement for search}
+  \label{fig:coroutine-search}
+\end{figure}
+% For instance, RACE and Clevel achieved almost 3x acceleration in single-thread configuration, but their performance gain with coroutines decreased to 1.2x and 2x under 16 threads. Under 128 threads configuration, due to the huge expansion overhead and the RDMA lock mechanism not supporting high-concurrency access, the multi-coroutine configuration of RACE and Plush could only bring negative effects due to additional access contention. In contrast, SepHash exhibited good scalability and sufficient concurrency potential, as it could increase index performance through configuring coroutines under all thread configurations, with acceleration ratio stable at around 1.5x, indicating good scalability and ample concurrency potential.
 
-\begin{acks}
- This work was supported by the [...] Research Fund of [...] (Number [...]). Additional funding was provided by [...] and [...]. We also thank [...] for contributing [...].
-\end{acks}
+
+
+
+\section{Related Work}
+
+\textbf{Distributed Hash based on RDMA.} RDMA-based hash indexes have been extensively studied in the past, including DrTM cluster hash\cite{DrTM+H}, Pilaf cuckoo hash\cite{Pilaf}, Farm hopscotch hashing\cite{Farm} based on bilateral RPC, and RACE based on unilateral RDMA. Traditional bilateral RPC-based hash indexes adopt a client-server architecture, where insert requests are sent via RPC to the server and get accesses are performed using unilateral or bilateral RDMA. However, the server can easily become a bottleneck in the entire system. RACE adopts a highly flexible and scalable design with separate memory, where all operations are performed using unilateral RDMA.
+
+\textbf{Single Machine Write-Optimized Hash.} There are many hash structures optimized for write performance on single machine platforms, including Level Hash\cite{Level-Hash} and its lock-free concurrent version CLevel\cite{CLevel}, which use hierarchical structure and open addressing to reduce the amount of data moved during each index expansion; CCEH\cite{CCEH} and its variant Dash\cite{Dash}, which introduce a segment intermediate layer on top of extendible hash to reduce directory space; and Plush, which introduces the hierarchical structure of LSM-Tree into the hash table, designing a multi-level hash table that organizes all data flows into blocks of NVM internal size (256 bytes).
+
+\textbf{DM-based Tree Index.} Sherman\cite{Sherman} and FG-Tree\cite{FG-Tree} implemented distributed B+Tree indexes based on separate memory. FG-Tree compared the performance of different granularity B+Tree node distributed methods under different types of workloads, while Sherman discovered a high-performance concurrent approach based on the internal memory of RDMA network cards and designed a Hierarchical On-Chip Lock to optimize B+Tree access under separate memory. ROLEX\cite{ROLEX} introduced learning-based indexes into separate memory platforms, using the high read performance of learning indexes to achieve high-performance ordered indexes, while also using the limited CPU resources in memory for index training. dLSM\cite{dLSM} implemented LSM-Tree based on separate memory, achieving high write performance for distributed indexes.
+
+
+\section{CONCLUSION}
+
+We proposed and verified SepHash, a write-optimized hash index for disaggregated memory. By introducing a dual-layer separate segment structure and RTT-less concurrency control strategy, SepHash eliminates the huge bandwidth consumption in the index expansion process and achieves extremely low write latency. At the same time, by introducing FPTable cache and FP filter, SepHash ensures excellent read performance while optimizing write performance.
+
+% \begin{acks}
+%  This work was supported by the [...] Research Fund of [...] (Number [...]). Additional funding was provided by [...] and [...]. We also thank [...] for contributing [...].
+% \end{acks}
+
 
 \clearpage
 
