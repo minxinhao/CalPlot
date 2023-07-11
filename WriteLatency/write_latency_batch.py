@@ -36,7 +36,7 @@ for idx, file_name in enumerate(file_names):
     ax.bar([i + 3 * width for i in x], values4, width, label='Clevel', edgecolor='black')
 
     # Set chart parameters
-    ax.set_ylabel('Time (ns)')
+    ax.set_ylabel('Time (us)')
     ax.set_xlabel('Data Size (thousands)')
     ax.set_xticks([i + 2 * width for i in x])
     ax.set_xticklabels([int(label) for label in labels])

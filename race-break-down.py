@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 # 数据和标签
 data = [0.16, 0.1, 0.13, 0.03, 0.14, 0.34, 0.07]
-labels = ['ReadBuc', 'CasSlot', 'ReRead','ReadSeg', 'ReadKv', 'MoveEntry', 'Other']
+labels = ['ReadBuc', 'CasEntry', 'ReRead','ReadSeg', 'ReadKv', 'MoveEntry', 'Other']
 
 # 绘制直方图
 plt.figure(figsize=(6.4, 3.5))

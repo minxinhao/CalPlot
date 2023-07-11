@@ -19,7 +19,7 @@ with open(filename, newline='') as csvfile:
         data.append([name] + values)
 
 # 使用原始数据中的代码绘制折线图
-plt.figure(figsize=(7, 5.8))
+plt.figure(figsize=(7, 6))
 plt.subplots_adjust(wspace=0.1, top=.9,left=.14,right=.99)
 
 groups = []

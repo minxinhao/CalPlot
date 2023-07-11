@@ -45,6 +45,7 @@ plt.subplots_adjust(wspace=0.1, top=.9,bottom=.11,left=.09,right=.99)
 
 for i, (name, group) in enumerate(groups):
     y_data = np.array(group) / 1000 # 将数据除以10
+    print(name, y_data)
     plt.plot(x_labels, y_data, label=name, marker=markers[i]) # 指定标记样式
 plt.xlabel("Number of Threads")
 plt.ylabel("Throughput (Mops/s)")
