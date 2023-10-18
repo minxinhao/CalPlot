@@ -30,7 +30,7 @@ legend_labels = ['SepHash', 'RACE', 'Clevel', 'Plush']
 
 # 绘图
 plt.figure(figsize=(7, 5.8))
-plt.subplots_adjust(wspace=0.1, top=.9,bottom=.06,left=.14,right=.99)
+plt.subplots_adjust(wspace=0.001, top=.9,bottom=.06,left=.14,right=.99)
 x = np.arange(len(x_labels))  # x 轴坐标
 width = 0.2  # 柱宽
 plt.bar(x - 1.5 * width, sep_hash, width, label=legend_labels[0], edgecolor='black')

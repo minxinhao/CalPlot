@@ -46,7 +46,7 @@ for i, ratio in enumerate(ratios):
 # 绘制柱状图
 x = np.arange(len(ratios))
 width = 0.15
-fig, ax = plt.subplots(figsize=(10, 6))
+fig, ax = plt.subplots(figsize=(7, 5.8))
 rects = []
 
 for i, index in enumerate(indexes):
@@ -62,6 +62,6 @@ ax.legend()
 
 # 保存为高精度的PDF文件
 plt.tight_layout()
-plt.savefig('chart.pdf', dpi=300, format='pdf')
+# plt.savefig('chart.pdf', dpi=300, format='pdf')
 
 plt.show()

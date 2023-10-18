@@ -2,12 +2,21 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
+import matplotlib as mpl
+
+# 设置全局字体大小
+mpl.rcParams['font.size'] = 20
+
 # Read the data from the CSV file
-data = pd.read_csv('insert-latency.csv', delimiter=',', index_col=0, skip_blank_lines=True)
+# filename = 'search-latency'
+filename = 'insert-latency'
+# data = pd.read_csv(filename, delimiter=',', index_col=0, skip_blank_lines=True)
+data = pd.read_csv(f'{filename}.csv', delimiter=',', index_col=0, skip_blank_lines=True)
 
 # Set the selected delay names
-selected_delays = ['P10 latency', 'median latency', 'P9999 latency']
-index_label = ['RACE', 'SepHash', 'Plush', 'CLevel']
+selected_delays = ['P10 latency', 'median latency','P99 latency' ,'P999 latency', 'P9999 latency']
+# selected_delays = ['P10 latency', 'median latency', 'P9999 latency']
+index_label = ['SepHash','RACE', 'Plush', 'CLevel']
 
 # Get the x labels from the first row of delay_data
 x_labels = list(data.columns)
@@ -50,8 +59,10 @@ for i, delay_name in enumerate(selected_delays):
     max_value = max_value * 1.1
 
     # Create a new figure for each delay
-    plt.figure(figsize=(10, 6))
-
+    plt.figure(figsize=(7, 5.8))
+    # plt.subplots_adjust(wspace=0.1, top=1.5, bottom=1.0,left=0.1,right=.2)
+    plt.subplots_adjust(wspace=0.1, top=.98, bottom=0.12, left=0.15, right=0.99)
+    
     # Create an array of x values using numpy.arange to ensure they are numeric
     x_values = np.arange(len(x_labels))
 
@@ -68,17 +79,6 @@ for i, delay_name in enumerate(selected_delays):
     plt.bar(x_values_clevel, list(selected_delay_data[3]), width=bar_width, label=index_label[3])
 
 
-    # Add labels above each bar with adjusted font size
-    # for j, value in enumerate(selected_delay_data[0]):
-    #     plt.annotate(f'{value:.2f}', (x_values_race[j], value + 0.1), ha='center', fontsize=10)
-    # for j, value in enumerate(selected_delay_data[1]):
-    #     plt.annotate(f'{value:.2f}', (x_values_sephash[j], value + 0.1), ha='center', fontsize=10)
-    # for j, value in enumerate(selected_delay_data[2]):
-    #     plt.annotate(f'{value:.2f}', (x_values_plush[j], value + 0.1), ha='center', fontsize=10)
-    # for j, value in enumerate(selected_delay_data[3]):
-    #     plt.annotate(f'{value:.2f}', (x_values_clevel[j], value + 0.1), ha='center', fontsize=10)
-
-
     # Set y-axis limit to ensure consistency across all graphs
     plt.ylim(0, max_value)
 
@@ -87,19 +87,34 @@ for i, delay_name in enumerate(selected_delays):
     plt.xticks(x_values, x_labels)
 
     # Set labels and title
-    plt.xlabel('Configuration')
-    plt.ylabel(delay_name)
-    plt.title(f'{delay_name} for Different Configurations')
-
+    plt.xlabel('Number of Threads')
+    if delay_name == "P10 latency":
+        # plt.ylabel('median latency(us)')
+        plt.ylabel('latency(us)')
+        # plt.title(f'median latency of {filename.split("-")[0]}')
+    elif delay_name == "P9999 latency" :
+        # plt.ylabel(f'log(P999 latency)(us)')
+        plt.ylabel('log(latency)(us)')
+        # plt.title(f'P999 latency of {filename.split("-")[0]}')
+    elif delay_name == "P999 latency" or delay_name == "P99 latency":
+        # plt.ylabel(f'log({delay_name})(us)')
+        plt.ylabel('log(latency)(us)')
+        # plt.title(f'{delay_name} of {filename.split("-")[0]}')
+    else:
+        # plt.ylabel(f'{delay_name}(us)')
+        plt.ylabel('latency(us)')
+        # plt.title(f'{delay_name} of {filename.split("-")[0]}')
+    
     # Set the number of y-axis ticks (adjust as needed)
     plt.yticks(np.linspace(0, float(max_value), num=6, dtype=int))  # Ensure the tick values are integers
 
     # Add legend
-    plt.legend()
+    # if delay_name == "P10 latency" and filename == 'insert-latency':
+    #     plt.legend()
 
     # Save the plot as a high-resolution PDF
-    plt.savefig(f'{delay_name}.pdf', format='pdf', dpi=300)
+    plt.savefig(f'{filename}-{delay_name}.pdf', format='pdf', dpi=300)
 
     # Show the plot (optional)
-    plt.tight_layout()
+    # plt.tight_layout()
     plt.show()

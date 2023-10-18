@@ -7,8 +7,8 @@ import matplotlib as mpl
 mpl.rcParams['font.size'] = 20
 
 # 定义输入文件的名称
-filename = 'micro_bench_insert.csv' 
-# filename = 'ycsb_search.csv' 
+# filename = 'micro_bench_insert.csv' 
+filename = 'ycsb_search.csv' 
 # filename = 'MainSegSize-Search.csv' 
 # filename = 'YCSB-D.csv' 
 # filename = 'CurSegSize-Insert.csv' 
@@ -42,7 +42,7 @@ output_filename = '{}.pdf'.format(filename.split('.')[0])
 
 plt.figure(figsize=(7, 5.8))
 # plt.subplots_adjust(wspace=0.1, top=1,left=.1,right=.99)
-plt.subplots_adjust(wspace=0.1, top=.9,bottom=.11,left=.09,right=.99)
+plt.subplots_adjust(wspace=0.1, top=.9,bottom=.11,left=0.14,right=.99)
 
 for i, (name, group) in enumerate(groups):
     y_data = np.array(group) / 1000 # 将数据除以10

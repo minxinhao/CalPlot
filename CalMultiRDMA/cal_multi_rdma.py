@@ -1,9 +1,14 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+import matplotlib as mpl
+
+# 设置全局字体大小
+mpl.rcParams['font.size'] = 20
 
 # 读取Excel文件
-excel_file = 'search-2.xlsx'
+excel_file = 'insert.xlsx'
+# excel_file = 'search.xlsx'
 data = pd.read_excel(excel_file, header=None)
 
 # 获取服务器数量
@@ -27,18 +32,24 @@ for i in range(1, data.shape[0], 4):
 
 # 绘制折线图
 print(server_numbers)
+plt.figure(figsize=(7, 5.8))
+plt.subplots_adjust(wspace=0.1, top=.9,bottom=.11,left=0.14,right=.99)
+markers = ['o', 's', 'x', '^', 'v', 'D','*', '>'] # 设置每个数据系列的标记样式
+
+i = 0
 for index_type, values in max_values.items():
     print(index_type)
     for val in reversed(values):
       print(val)
-    plt.plot(server_numbers, values, label=index_type)
+    plt.plot(server_numbers, values, label=index_type,marker=markers[i])
+    i += 1
     # 在每个数据点上添加数值标签
     # for x, y in zip(server_numbers, values):
     #     plt.text(x, y, f'{y:.2f}', ha='center', va='bottom')
 
 # 添加标题和标签
 title = os.path.splitext(excel_file)[0]
-plt.title(title)
+# plt.title(title)
 plt.xlabel('Server Number')
 plt.ylabel('Max Value')
 

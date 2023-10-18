@@ -29,7 +29,7 @@ data = {
     "90% : 10%": {
         "race": [2181.15, 643.25, 539.56, 431.49],
         "sephash": [16154.81, 14006.63, 11138.43, 15787.39],
-        "clevel": [5001.69, 4655.24, 6300.84, 12209.47],
+        "clevel": [5001.69, 4655.24, 6300.84, 8621.76],
         "plush": [5738.42, 2930.96, 2720.24, 2322.62]
     }
 }
@@ -62,6 +62,6 @@ ax.legend()
 
 # 保存为高精度的PDF文件
 plt.tight_layout()
-plt.savefig('chart.pdf', dpi=300, format='pdf')
+# plt.savefig('chart.pdf', dpi=300, format='pdf')
 
 plt.show()
