@@ -75,10 +75,10 @@ axes[1].set_ylabel('Throughputs(MIops)')
 
 # 共享图例
 handles, labels = axes[1].get_legend_handles_labels()
-fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, 1), ncol=len(labels))
+fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, 1), ncol=len(labels),framealpha=0, handlelength=2)
 
-axes[0].text(0.5, -0.2, '(a) search performance', transform=axes[0].transAxes, fontsize=20, va='top', ha='center')
-axes[1].text(0.5, -0.2, '(b) insert performance', transform=axes[1].transAxes, fontsize=20, va='top', ha='center')
+axes[0].text(0.5, -0.2, '(a) insert performance', transform=axes[0].transAxes, fontsize=20, va='top', ha='center')
+axes[1].text(0.5, -0.2, '(b) search performance', transform=axes[1].transAxes, fontsize=20, va='top', ha='center')
 
 
 # 保存为高精度PDF文件

@@ -11,27 +11,17 @@ def extract_image_from_pdf(pdf_file):
     return images[0] if images else None
 
 # PDF文件名列表
-merge_name = "insert_latency"
-# merge_name = "search_latency"
-pdf_files = []
-if merge_name == "insert_latency":
-    pdf_files = [
-        "insert-latency-P10 latency.pdf",
-        "insert-latency-P999 latency.pdf",
-    ]
-else:
-    pdf_files = [
-        "search-latency-P10 latency.pdf",
-        "search-latency-P9999 latency.pdf"
-    ]
+pdf_files = ["CurSegment-Size.pdf","MainSegment-Size.pdf"]
+
 
 # 图例标签
-legend_labels = ['RACE', 'SepHash', 'Plush', 'CLevel']
+legend_labels = ['insert', 'search']
 
 # 创建一个子图对象，并设置大小和布局
-fig, axs = plt.subplots(1, len(pdf_files), figsize=(10, 5.8))
+fig, axs = plt.subplots(1,2, figsize=(7, 3))
 
 # 遍历每个PDF文件和对应的子图对象
+i = 0
 for pdf_file, ax in zip(pdf_files, axs):
     # 提取PDF文件中的图像
     image = extract_image_from_pdf(pdf_file)
@@ -39,15 +29,23 @@ for pdf_file, ax in zip(pdf_files, axs):
     # 显示图像
     ax.imshow(image)
     ax.axis('off')  # 移除坐标轴
+    if i == 0:
+      ax.text(0.5, -0.05, '(a) Impact of CurSegment Size', transform=ax.transAxes, fontsize=12, va='top', ha='center')
+    else:
+      ax.text(0.5, -0.05, '(b) Impact of MainSegment Size', transform=ax.transAxes, fontsize=12, va='top', ha='center')
+    i+=1
+
 
 # 调整子图之间的间距，增加额外的空白间距
-plt.subplots_adjust(wspace=0.01, top=1.5, bottom=-.5, left=.01, right=.99)
+plt.subplots_adjust(wspace=0.01, top=1, bottom=.1, left=.01, right=.99)
+
 
 # 在顶部生成共享的图例
-fig.legend(legend_labels, loc='upper center', bbox_to_anchor=(0.5, 0), ncol=len(pdf_files), fontsize=20, framealpha=0, handlelength=.4)
+fig.legend(legend_labels, loc='center', bbox_to_anchor=(.4, .4), ncol=len(pdf_files), fontsize=20, framealpha=0, handlelength=.4)
 
 # 保存合并后的图像
-plt.savefig(f'{merge_name}.pdf',format='pdf',dpi=300)
+plt.savefig(f'Segment-Size.pdf',format='pdf',dpi=300)
 
 # 显示合并后的图像
 plt.show()
+

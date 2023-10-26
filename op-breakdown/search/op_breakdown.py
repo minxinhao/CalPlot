@@ -7,7 +7,7 @@ import matplotlib as mpl
 mpl.rcParams['font.size'] = 20
 
 # 定义输入文件的名称
-filename = 'search_op_breakdown_2.csv' 
+filename = 'search_op_breakdown.csv' 
 
 # 从CSV文件读取数据
 with open(filename, newline='') as csvfile:
@@ -20,7 +20,7 @@ with open(filename, newline='') as csvfile:
 
 # 使用原始数据中的代码绘制折线图
 plt.figure(figsize=(7, 6))
-plt.subplots_adjust(wspace=0.1, top=.9,left=.14,right=.99)
+plt.subplots_adjust(wspace=0.1, top=1,left=.14,right=.99)
 
 groups = []
 for row in data:
@@ -48,7 +48,7 @@ plt.legend(fontsize=20)
 # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=20, framealpha=0, handlelength=.3)
 
 # 将输出文件保存到指定名称
-plt.savefig(output_filename)
+plt.savefig(output_filename, dpi=300, bbox_inches='tight')
 
 # # 显示图片
 plt.show()

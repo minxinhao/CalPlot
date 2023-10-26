@@ -11,7 +11,7 @@ race = np.array([69204.72, 81000, 99710.3, 83460.82]) / 1000
 clevel = np.array([7417.05, 8748.4, 11120.05, 9543.89]) / 1000
 plush = np.array([5200.35, 4270.93, 3893.1, 4348.51]) / 1000
 x_labels = ['YCSB-A', 'YCSB-B', 'YCSB-C', 'YCSB-D']
-legend_labels = ['SepHash', 'RACE', 'Clevel', 'Plush']
+legend_labels = ['SepHash', 'RACE', 'CLevel', 'Plush']
 
 # # 绘图
 # plt.figure(figsize=(10, 5.8))

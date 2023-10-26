@@ -19,12 +19,12 @@ fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5.8), sharey=True)
 # create plots in each subplot
 ax1.plot(x, entry_data_df['SepHash'], label='SepHash')
 ax1.plot(x, entry_data_df['RACE'], label='RACE')
-ax1.plot(x, entry_data_df['Clevel'], label='Clevel')
+ax1.plot(x, entry_data_df['CLevel'], label='CLevel')
 ax1.plot(x, entry_data_df['Plush'], label='Plush')
 
 ax2.plot(x, space_data_df['SepHash'], label='SepHash')
 ax2.plot(x, space_data_df['RACE'], label='RACE')
-ax2.plot(x, space_data_df['Clevel'], label='Clevel')
+ax2.plot(x, space_data_df['CLevel'], label='CLevel')
 ax2.plot(x, space_data_df['Plush'], label='Plush')
 
 # add axis labels

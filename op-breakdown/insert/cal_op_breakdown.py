@@ -13,7 +13,7 @@ data_df = pd.read_csv(filename)
 # define x-axis values
 x = range(1, 9, 1)
 plt.figure(figsize=(7, 6))
-plt.subplots_adjust(wspace=0.1, top=.9,left=.11,right=.99)
+plt.subplots_adjust(wspace=0.1, top=1,left=.11,right=.99)
 
 # create plot
 plt.plot(x, data_df['RACE']/1000, label='RACE', marker='o')

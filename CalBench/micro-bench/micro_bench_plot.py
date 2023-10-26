@@ -52,7 +52,7 @@ plt.xlabel("Number of Threads")
 plt.ylabel("Throughput (Mops/s)")
 plt.legend(fontsize=20) # 调
 # 整图例字体大小
-plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=18, framealpha=0, handlelength=0.8)
+plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=18, framealpha=0, handlelength=0.4)
 
 
 # 将输出文件保存到指定名称
