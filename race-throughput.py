@@ -6,7 +6,7 @@ race_batch_y = [47.32, 96.54, 185.45, 339.28, 477.19]
 no_split_y = [90.43, 181.76, 360.54, 643.12, 1085.98]
 
 plt.figure(figsize=(6.4, 2.56))
-# plt.subplots_adjust(wspace=0.1, top=.1,left=.1,right=.99, bottom=.05)
+plt.subplots_adjust(wspace=0.1, top=.1,left=.1,right=.99, bottom=.05)
 plt.subplots_adjust(top=1,bottom=.17)
 plt.plot(x, race_y, label="RACE/W Resize")
 plt.plot(x, no_split_y, label="RACE/Wo Resize")

@@ -20,7 +20,8 @@ with open(filename, newline='') as csvfile:
 
 # 使用原始数据中的代码绘制折线图
 plt.figure(figsize=(7, 6))
-plt.subplots_adjust(wspace=0.1, top=1,left=.14,right=.99)
+# plt.subplots_adjust(wspace=0.1, top=1,left=.14,right=.99)
+plt.subplots_adjust(wspace=0.1, top=1,bottom=.18,left=.14,right=.99)
 
 groups = []
 for row in data:
@@ -46,6 +47,8 @@ plt.ylabel("Throughput (Mops/s)")
 plt.legend(fontsize=20)
 # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=14, framealpha=0.8, handlelength=1)
 # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=20, framealpha=0, handlelength=.3)
+
+plt.text(0.5, -0.18, '(b) search optimization breakdown', horizontalalignment='center', verticalalignment='center', transform=plt.gca().transAxes, fontsize=20)
 
 # 将输出文件保存到指定名称
 plt.savefig(output_filename, dpi=300, bbox_inches='tight')

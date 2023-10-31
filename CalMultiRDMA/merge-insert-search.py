@@ -4,15 +4,15 @@ import os
 import matplotlib as mpl
 
 # 设置全局字体大小
-mpl.rcParams['font.size'] = 20
+mpl.rcParams['font.size'] = 16
 
 # 读取Excel文件
 insert_excel_file = 'insert.xlsx'
 search_excel_file = 'search.xlsx'
 
 # 创建一个包含两个子图的图形
-fig, axes = plt.subplots(1, 2, figsize=(14, 5.8))
-fig.subplots_adjust(wspace=0.3, top=0.88, bottom=0.2,left=0.08, right=.99)
+fig, axes = plt.subplots(1, 2, figsize=(12, 5.8))
+fig.subplots_adjust(wspace=0.2, top=0.88, bottom=0.16,left=0.06, right=.99)
 
 # 处理插入数据的Excel文件
 insert_data = pd.read_excel(insert_excel_file, header=None)
@@ -77,8 +77,8 @@ axes[1].set_ylabel('Throughputs(MIops)')
 handles, labels = axes[1].get_legend_handles_labels()
 fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, 1), ncol=len(labels),framealpha=0, handlelength=2)
 
-axes[0].text(0.5, -0.2, '(a) insert performance', transform=axes[0].transAxes, fontsize=20, va='top', ha='center')
-axes[1].text(0.5, -0.2, '(b) search performance', transform=axes[1].transAxes, fontsize=20, va='top', ha='center')
+axes[0].text(0.5, -0.15, '(a) insert performance', transform=axes[0].transAxes, fontsize=20, va='top', ha='center')
+axes[1].text(0.5, -0.15, '(b) search performance', transform=axes[1].transAxes, fontsize=20, va='top', ha='center')
 
 
 # 保存为高精度PDF文件

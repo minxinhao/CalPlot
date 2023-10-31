@@ -13,7 +13,7 @@ data_df = pd.read_csv(filename)
 # define x-axis values
 x = range(1, 9, 1)
 plt.figure(figsize=(7, 6))
-plt.subplots_adjust(wspace=0.1, top=1,left=.11,right=.99)
+plt.subplots_adjust(wspace=0.1, top=1,bottom=.18,left=.12,right=.99)
 
 # create plot
 plt.plot(x, data_df['RACE']/1000, label='RACE', marker='o')
@@ -33,6 +33,8 @@ plt.legend(fontsize=20)
 # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=20, framealpha=0, handlelength=.4)
 # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=20, framealpha=0, handlelength=.4)
 
+# add text below the plot
+plt.text(0.5, -0.18, '(a) insert optimization breakdown', horizontalalignment='center', verticalalignment='center', transform=plt.gca().transAxes, fontsize=20)
 
 # save plot as a high-quality PDF file
 output_filename = '{}.pdf'.format(filename.split('.')[0])

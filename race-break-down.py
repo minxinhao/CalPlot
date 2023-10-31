@@ -5,14 +5,15 @@ data = [0.16, 0.1, 0.13, 0.03, 0.14, 0.34, 0.07]
 labels = ['ReadBuc', 'CasEntry', 'ReRead','ReadSeg', 'ReadKv', 'MoveEntry', 'Other']
 
 # 绘制直方图
-plt.figure(figsize=(6.4, 3.5))
-# plt.subplots_adjust(wspace=0.1, top=.1,left=.1,right=.99, bottom=.05)
-plt.subplots_adjust(top=.96)
+plt.figure(figsize=(6.4, 3))
+plt.subplots_adjust(wspace=0.1, top=.99,bottom=.1,left=.1,right=.99)
+# plt.subplots_adjust(top=.99,bottom=.1)
 rects = plt.bar(labels, data)
 
 # 添加标签和标题
 # plt.xlabel('Latency Breakdown')
 plt.ylabel('Proportion')
+plt.ylim(0,max(data)*1.1)
 # plt.title('Insert Latency Breakdown in RACE')
 
 # 在每个矩形上方显示相应的数值

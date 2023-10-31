@@ -70,8 +70,8 @@ ax3.set_ylabel('Insert Throughput(Mops)')
 ax4.set_ylabel('Search Throughput(Mops)')
 
 
-ax1.text(0.5, -0.2, '(a) Impact of CurSegment Size', transform=ax1.transAxes, fontsize=20, va='top', ha='center')
-ax3.text(1.8, -0.2, '(b) Impact of MainSegment Size', transform=ax2.transAxes, fontsize=20, va='top', ha='center')
+ax1.text(0.5, -0.1, '(a) Impact of CurSegment Size', transform=ax1.transAxes, fontsize=20, va='top', ha='center')
+ax3.text(1.8, -0.1, '(b) Impact of MainSegment Size', transform=ax2.transAxes, fontsize=20, va='top', ha='center')
 
 # 添加图例
 lines, labels = ax1.get_legend_handles_labels()
@@ -79,7 +79,7 @@ lines2, labels2 = ax2.get_legend_handles_labels()
 fig.legend(lines + lines2, labels + labels2, loc='upper center', ncol=2,framealpha=0, handlelength=.4)
 # ax1.legend(labels+labels2,loc='upper center',bbox_to_anchor=(1, 1.15), ncol=2, fontsize=20, framealpha=0, handlelength=2)
 
-plt.subplots_adjust(wspace=0.4, top=.9,bottom=.2,left=.08,right=.93)
+plt.subplots_adjust(wspace=0.4, top=.9,bottom=.124,left=.08,right=.93)
 
 # 设置图形标题
 # plt.suptitle('Insert and Search Performance')
