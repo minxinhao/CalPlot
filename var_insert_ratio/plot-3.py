@@ -62,9 +62,9 @@ for i, index in enumerate(indexes):
   plt.bar(x - 1.5*width + i*width, values[:,i], width,label=index)
   
 # Add labels and legends  
-plt.xlabel("Read/Write Ratio")
+plt.xlabel("Insert/Search Ratio")
 plt.xticks(x, ratios)  
-plt.ylabel('Throughput (Mops/s)')
+plt.ylabel('Throughput (Mops)')
 plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=18, framealpha=0, handlelength=.4)
 
 # Save figure

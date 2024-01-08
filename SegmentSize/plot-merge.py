@@ -6,18 +6,18 @@ import matplotlib as mpl
 mpl.rcParams['font.size'] = 16
 # 输入数据
 data1 = {
-    '2KB': (8869.82, 81233.05),
-    '1KB': (9174.48, 73681.18),
-    '512B': (14323.71, 59123.59),
+    '128B': (15728.04, 36567.54),
     '256B': (20684.51, 49672.22),
-    '128B': (15728.04, 36567.54)
+    '512B': (14323.71, 59123.59),
+    '1KB': (9174.48, 73681.18),
+    '2KB': (8869.82, 81233.05)    
 }
 
 data2 = {
-    '64KB': (10356.72, 84944.79),
-    '32KB': (9174.48, 73681.18),
+    '8KB': (11834.04, 50317.33),
     '16KB': (10167.81, 61069.76),
-    '8KB': (11834.04, 50317.33)
+    '32KB': (9174.48, 73681.18),
+    '64KB': (10356.72, 84944.79)
 }
 
 # 分离数据
@@ -35,7 +35,7 @@ x_ticks2 = np.arange(len(segments2))
 bar_width = 0.35
 
 # 创建图形和子图
-fig, (ax1, ax3) = plt.subplots(1, 2, figsize=(12, 5.8), sharey=False)
+fig, (ax1, ax3) = plt.subplots(1, 2, figsize=(12, 5), sharey=False)
 
 # 绘制第一个子图的Insert柱状图
 ax1.bar(x_ticks1, insert_data1, bar_width, color='tab:blue', label='Insert')
@@ -76,10 +76,11 @@ ax3.text(1.8, -0.1, '(b) Impact of MainSegment Size', transform=ax2.transAxes, f
 # 添加图例
 lines, labels = ax1.get_legend_handles_labels()
 lines2, labels2 = ax2.get_legend_handles_labels()
-fig.legend(lines + lines2, labels + labels2, loc='upper center', ncol=2,framealpha=0, handlelength=.4)
+# fig.legend(lines + lines2, labels + labels2, loc='upper center', ncol=2,framealpha=0, handlelength=.4)
+fig.legend(lines + lines2, labels + labels2, loc='upper center', ncol=2, framealpha=0, handlelength=.4, bbox_to_anchor=(.5, 1.03))
 # ax1.legend(labels+labels2,loc='upper center',bbox_to_anchor=(1, 1.15), ncol=2, fontsize=20, framealpha=0, handlelength=2)
 
-plt.subplots_adjust(wspace=0.4, top=.9,bottom=.124,left=.08,right=.93)
+plt.subplots_adjust(wspace=0.4, top=.9,bottom=.13,left=.08,right=.93)
 
 # 设置图形标题
 # plt.suptitle('Insert and Search Performance')

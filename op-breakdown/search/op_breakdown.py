@@ -7,7 +7,8 @@ import matplotlib as mpl
 mpl.rcParams['font.size'] = 20
 
 # 定义输入文件的名称
-filename = 'search_op_breakdown.csv' 
+# filename = 'search_op_breakdown.csv' 
+filename = 'search_op_breakdown_2.csv' 
 
 # 从CSV文件读取数据
 with open(filename, newline='') as csvfile:
@@ -41,14 +42,15 @@ output_filename = '{}.pdf'.format(filename.split('.')[0])
 
 for i, (name, group) in enumerate(groups):
     y_data = np.array(group) / 1000 # 将数据除以10
-    plt.plot(x_labels, y_data, label=name, marker=markers[i]) # 指定标记样式
+    print(name,y_data)
+    plt.plot(x_labels, y_data, label=name, marker=markers[i],markersize=10) # 指定标记样式
 plt.xlabel("Number of Threads")
-plt.ylabel("Throughput (Mops/s)")
+plt.ylabel("Throughput (Mops)")
 plt.legend(fontsize=20)
 # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=14, framealpha=0.8, handlelength=1)
 # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=20, framealpha=0, handlelength=.3)
 
-plt.text(0.5, -0.18, '(b) search optimization breakdown', horizontalalignment='center', verticalalignment='center', transform=plt.gca().transAxes, fontsize=20)
+# plt.text(0.5, -0.18, '(b) search optimization breakdown', horizontalalignment='center', verticalalignment='center', transform=plt.gca().transAxes, fontsize=20)
 
 # 将输出文件保存到指定名称
 plt.savefig(output_filename, dpi=300, bbox_inches='tight')

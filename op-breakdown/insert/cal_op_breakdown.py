@@ -16,16 +16,16 @@ plt.figure(figsize=(7, 6))
 plt.subplots_adjust(wspace=0.1, top=1,bottom=.18,left=.12,right=.99)
 
 # create plot
-plt.plot(x, data_df['RACE']/1000, label='RACE', marker='o')
-plt.plot(x, data_df['batch']/1000, label='Base', marker='s')
-plt.plot(x, data_df['inline-dep']/1000, label='+resize-op entry', marker='x')
-plt.plot(x, data_df['zero-wait']/1000, label='+zero-wait write', marker='^')
+plt.plot(x, data_df['RACE']/1000, label='RACE', marker='o',markersize=10)
+plt.plot(x, data_df['batch']/1000, label='Base', marker='s',markersize=10)
+plt.plot(x, data_df['inline-dep']/1000, label='+resize-op entry', marker='x',markersize=10)
+plt.plot(x, data_df['zero-wait']/1000, label='+zero-wait write', marker='^',markersize=10)
 
 plt.xticks(x, ['1','2','4','8','16','32','64','128'])
 
 # add title and axis labels
 plt.xlabel('number of clients')
-plt.ylabel("Throughput (Mops/s)")
+plt.ylabel("Throughput (Mops)")
 
 # add legend
 plt.legend(fontsize=20)

@@ -44,7 +44,7 @@ for i, (name, group) in enumerate(groups):
     y_data = np.array(group) / 1000 # 将数据除以10
     plt.plot(x_labels, y_data, label=name, marker=markers[i]) # 指定标记样式
 plt.xlabel("Number of Threads")
-plt.ylabel("Throughput (Mops/s)")
+plt.ylabel("Throughput (Mops)")
 # plt.legend()
 plt.legend(loc='upper left', fontsize=10)
 

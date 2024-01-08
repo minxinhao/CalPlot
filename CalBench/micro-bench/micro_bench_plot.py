@@ -8,10 +8,12 @@ mpl.rcParams['font.size'] = 20
 
 # 定义输入文件的名称
 # filename = 'micro_bench_insert.csv' 
-filename = 'ycsb_search.csv' 
+# filename = 'ycsb_search.csv' 
+# filename = 'ycsb_search copy.csv' 
 # filename = 'MainSegSize-Search.csv' 
 # filename = 'YCSB-D.csv' 
 # filename = 'CurSegSize-Insert.csv' 
+filename = 'RACE.csv' 
 
 # 从CSV文件读取数据
 with open(filename, newline='') as csvfile:
@@ -47,9 +49,9 @@ plt.subplots_adjust(wspace=0.1, top=.9,bottom=.11,left=0.14,right=.99)
 for i, (name, group) in enumerate(groups):
     y_data = np.array(group) / 1000 # 将数据除以10
     print(name, y_data)
-    plt.plot(x_labels, y_data, label=name, marker=markers[i]) # 指定标记样式
+    plt.plot(x_labels, y_data, label=name, marker=markers[i],markersize=8) # 指定标记样式
 plt.xlabel("Number of Threads")
-plt.ylabel("Throughput (Mops/s)")
+plt.ylabel("Throughput (Mops)")
 plt.legend(fontsize=20) # 调
 # 整图例字体大小
 plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=18, framealpha=0, handlelength=0.4)

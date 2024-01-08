@@ -38,7 +38,7 @@ plt.bar(x - 0.5 * width, race, width, label=legend_labels[1], edgecolor='black')
 plt.bar(x + 0.5 * width, plush, width, label=legend_labels[2], edgecolor='black')
 plt.bar(x + 1.5 * width, clevel, width, label=legend_labels[3], edgecolor='black')
 plt.xticks(x, x_labels)
-plt.ylabel('Throughput (Mops/s)')
+plt.ylabel('Throughput (Mops)')
 
 # 设置图例
 # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=4, fontsize=14)

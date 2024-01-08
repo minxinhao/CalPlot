@@ -7,8 +7,8 @@ import matplotlib as mpl
 mpl.rcParams['font.size'] = 20
 
 # 读取Excel文件
-excel_file = 'insert.xlsx'
-# excel_file = 'search.xlsx'
+# excel_file = 'insert.xlsx'
+excel_file = 'search.xlsx'
 data = pd.read_excel(excel_file, header=None)
 
 # 获取服务器数量
@@ -25,7 +25,7 @@ max_values = {}
 print(data)
 for i in range(1, data.shape[0], 4):
     index_type = data.iloc[i, 0]
-    index_data = data.iloc[i:i+4, 1:5].values.astype(float)
+    index_data = data.iloc[i:i+4, 1:5].values.astype(float)/1000
     index_data = index_data.T
     print(index_data)
     max_values[index_type] = [max(row) for row in index_data]
@@ -33,7 +33,7 @@ for i in range(1, data.shape[0], 4):
 # 绘制折线图
 print(server_numbers)
 plt.figure(figsize=(7, 5.8))
-plt.subplots_adjust(wspace=0.1, top=.9,bottom=.11,left=0.14,right=.99)
+plt.subplots_adjust(wspace=0.1, top=.9,bottom=.12,left=0.15,right=.99)
 markers = ['o', 's', 'x', '^', 'v', 'D','*', '>'] # 设置每个数据系列的标记样式
 
 i = 0
@@ -50,11 +50,13 @@ for index_type, values in max_values.items():
 # 添加标题和标签
 title = os.path.splitext(excel_file)[0]
 # plt.title(title)
-plt.xlabel('Server Number')
-plt.ylabel('Max Value')
+plt.xlabel('#memory nodes')
+plt.ylabel('Throughput(Mops)')
 
 # 添加图例
-plt.legend()
+# plt.legend()
+plt.legend(loc='upper center', bbox_to_anchor=(0.4, 1.15), ncol=4, fontsize=18, framealpha=0, handlelength=0.8)
+
 
 # 从Excel文件名提取不带扩展名的文件名
 output_file = os.path.splitext(excel_file)[0] + '.pdf'

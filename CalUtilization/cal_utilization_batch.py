@@ -14,7 +14,8 @@ space_data_df = pd.read_csv('space_utilization.csv')
 x = range(10, 267, 1)
 
 # create subplots
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5.8), sharey=True)
+# fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5.8), sharey=True)
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5.8))
 
 # create plots in each subplot
 ax1.plot(x, entry_data_df['SepHash'], label='SepHash')
@@ -41,7 +42,7 @@ ax1.text(0.5, -0.2, '(a) Entry Utilization', transform=ax1.transAxes, fontsize=2
 ax2.text(0.5, -0.2, '(b) Space Utilization', transform=ax2.transAxes, fontsize=20, va='top', ha='center')
 
 # adjust spacing between subplots and legend
-plt.subplots_adjust(wspace=0.3, top=.88,bottom=.2,left=.08,right=1)
+plt.subplots_adjust(wspace=0.15, top=.88,bottom=.2,left=.046,right=1)
 
 # save plot as a high-quality PDF file
 plt.savefig('entry_space_utilization.pdf', dpi=300, bbox_inches='tight')

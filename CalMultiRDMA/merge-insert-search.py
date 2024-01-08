@@ -42,7 +42,7 @@ for index_type, values in insert_max_values.items():
 
 # 添加标签
 axes[0].set_xlabel('Server Number')
-axes[0].set_ylabel('Throughputs(MIops)')
+axes[0].set_ylabel('Throughput (Mops)')
 
 # 处理搜索数据的Excel文件
 search_data = pd.read_excel(search_excel_file, header=None)
@@ -71,7 +71,7 @@ for index_type, values in search_max_values.items():
 
 # 添加标签
 axes[1].set_xlabel('Server Number')
-axes[1].set_ylabel('Throughputs(MIops)')
+axes[1].set_ylabel('Throughput (Mops)')
 
 # 共享图例
 handles, labels = axes[1].get_legend_handles_labels()

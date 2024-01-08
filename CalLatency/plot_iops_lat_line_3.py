@@ -8,26 +8,30 @@ import matplotlib as mpl
 mpl.rcParams['font.size'] = 20
 
 # Read the data from the CSV file
-data = pd.read_csv('insert-latency.csv', delimiter=',', index_col=0, skip_blank_lines=True)
+filename = 'search-latency'
+# filename = 'insert-latency'
+# data = pd.read_csv('insert-latency.csv', delimiter=',', index_col=0, skip_blank_lines=True)
+data = pd.read_csv(f'{filename}.csv', delimiter=',', index_col=0, skip_blank_lines=True)
 
 # Get the x labels from the first row of delay_data
 x_labels = list(data.columns)
 
-throughputs = data.loc['throughputs'].astype(np.float64)
+throughputs = data.loc['throughputs'].astype(np.float64)/1000
+
 correspond_p10_delay = data.loc['P10 latency'].astype(np.float64)
-correspond_p999_delay = data.loc['P999 latency'].astype(np.float64)
-correspond_p999_delay = np.log(correspond_p999_delay)
+correspond_p999_delay = data.loc['P9999 latency'].astype(np.float64)
+correspond_p999_delay = np.log10(correspond_p999_delay)
 
 # Create a dictionary to map index labels to colors and markers
 colors_markers = {'SepHash': {'color': 'b', 'marker': 'o'}, 
                   'RACE': {'color': 'y', 'marker': 's'}, 
-                  'CLevel': {'color': 'g', 'marker': 'x'},
+                  'CLevel':   {'color': 'g', 'marker': 'x'},
                   'Plush': {'color': 'r', 'marker': '^'}
                   }
 
 # Create a figure and axis for the plot
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5.8))
-fig.subplots_adjust(hspace=0.4, top=.88, bottom=0.2, left=0.05, right=.99)
+fig.subplots_adjust(hspace=0.4, top=.88, bottom=0.2, left=0.08, right=.99)
 
 # Iterate over each index label (RACE, SepHash, Plush, CLevel)
 i = 0
@@ -51,6 +55,10 @@ for index_label, properties in colors_markers.items():
     selected_throughputs = np.array(selected_throughputs)
     selected_latency_p999 = np.array(selected_latency_p999)
     selected_latency_p10 = np.array(selected_latency_p10)
+    print(index_label)
+    print(selected_throughputs)
+    print(selected_latency_p10)
+    print(selected_latency_p999)
 
     # Create a line plot with the specified color, line style, and label for P999 latency
     ax1.plot(selected_throughputs, selected_latency_p10, label=index_label, 
@@ -59,17 +67,19 @@ for index_label, properties in colors_markers.items():
     # Create a line plot with the specified color, line style, and label for P10 latency
     ax2.plot(selected_throughputs, selected_latency_p999, label=index_label,
             marker=properties['marker'], markerfacecolor='none')
+    ax2.set_yticks([1, 2, 3])
+
 
     i += 1
 
 # Set labels and titles for P999 latency subplot
-ax1.set_xlabel('Throughputs(iops)')
-ax2.set_ylabel('latency(us)')
+ax1.set_xlabel('Throughputs(Miops)')
+ax1.set_ylabel('latency(µs)')
 # ax1.set_title('Max Throughputs vs. P10 Latency')
 
 # Set labels and titles for P10 latency subplot
-ax2.set_xlabel('Throughputs(iops)')
-ax2.set_ylabel('log(latency)(us)')
+ax2.set_xlabel('Throughputs(Miops)')
+ax2.set_ylabel('latency(µs, log scale)')
 # ax2.set_title('Max Throughputs vs. P999 Latency')
 
 # Add legend to both subplots
@@ -78,7 +88,7 @@ ax2.set_ylabel('log(latency)(us)')
 legend = fig.legend(*ax1.get_legend_handles_labels(), bbox_to_anchor=(0.5, 1.01), loc='upper center', ncol=4,framealpha=0, handlelength=2)
 
 # add subplot titles below the figures
-ax1.text(0.5, -0.2, '(a) throughputs vs p10 latency', transform=ax1.transAxes, fontsize=20, va='top', ha='center')
+ax1.text(0.5, -0.2, '(a) throughputs vs median latency', transform=ax1.transAxes, fontsize=20, va='top', ha='center')
 ax2.text(0.5, -0.2, '(b) throughputs vs p999 latency', transform=ax2.transAxes, fontsize=20, va='top', ha='center')
 
 
@@ -86,7 +96,7 @@ ax2.text(0.5, -0.2, '(b) throughputs vs p999 latency', transform=ax2.transAxes, 
 plt.grid(False)
 
 # Save the plot as a high-resolution PDF
-plt.savefig(f'throughput-latency.pdf', format='pdf', dpi=300)
+plt.savefig(f'throughput-{filename}.pdf', format='pdf', dpi=300)
 
 # plt.tight_layout()
 plt.show()
