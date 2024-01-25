@@ -4,6 +4,7 @@ import matplotlib as mpl
 
 # 设置全局字体大小
 mpl.rcParams['font.size'] = 16
+mpl.rcParams['pdf.fonttype'] = 42
 # 数据
 # labels = ['8 bytes', '16 bytes', '32 bytes', '64 bytes', '128 bytes', '256 bytes', '512 bytes', '1 KB', '2 KB', '4 KB']
 labels = ['8 bytes', '16 bytes', '32 bytes', '64 bytes', '128 bytes', '256 bytes', '512 bytes', '1024 bytes', '2048 bytes', '4096 bytes']

@@ -5,15 +5,16 @@ import matplotlib as mpl
 
 # 设置全局字体大小
 mpl.rcParams['font.size'] = 20
+mpl.rcParams['pdf.fonttype'] = 42
 
 # 定义输入文件的名称
 # filename = 'micro_bench_insert.csv' 
-# filename = 'ycsb_search.csv' 
+filename = 'ycsb_search.csv' 
 # filename = 'ycsb_search copy.csv' 
 # filename = 'MainSegSize-Search.csv' 
 # filename = 'YCSB-D.csv' 
 # filename = 'CurSegSize-Insert.csv' 
-filename = 'RACE.csv' 
+# filename = 'RACE.csv' 
 
 # 从CSV文件读取数据
 with open(filename, newline='') as csvfile:

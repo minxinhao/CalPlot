@@ -5,6 +5,7 @@ import matplotlib as mpl
 
 # 设置全局字体大小
 mpl.rcParams['font.size'] = 16
+mpl.rcParams['pdf.fonttype'] = 42
 
 # 读取Excel文件
 insert_excel_file = 'insert.xlsx'

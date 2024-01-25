@@ -3,6 +3,7 @@ import matplotlib as mpl
 
 # 设置全局字体大小
 mpl.rcParams['font.size'] = 20
+plt.rcParams['pdf.fonttype'] = 42
 
 # 数据和标签
 data = [0.16, 0.1, 0.13, 0.03, 0.14, 0.34, 0.10]

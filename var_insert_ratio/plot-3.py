@@ -4,6 +4,7 @@ import matplotlib as mpl
 
 mpl.rcParams['font.size'] = 20
 # mpl.rcParams['axes.edgecolor'] = 'black'  # 设置边框颜色为黑色
+mpl.rcParams['pdf.fonttype'] = 42
 
 # Read data
 data = {

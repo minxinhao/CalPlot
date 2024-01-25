@@ -4,6 +4,7 @@ import matplotlib as mpl
 
 # 设置全局字体大小
 mpl.rcParams['font.size'] = 20
+mpl.rcParams['pdf.fonttype'] = 42
 
 # 数据
 sep_hash = np.array([56161.16, 74343.55, 88537.2, 68007.14]) / 1000

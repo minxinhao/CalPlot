@@ -4,6 +4,7 @@ import matplotlib as mpl
 
 # 设置全局字体大小
 mpl.rcParams['font.size'] = 20
+mpl.rcParams['pdf.fonttype'] = 42
 
 filename = 'insert_op_breakdown.csv' 
 
@@ -34,7 +35,7 @@ plt.legend(fontsize=20)
 # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=20, framealpha=0, handlelength=.4)
 
 # add text below the plot
-plt.text(0.5, -0.18, '(a) insert optimization breakdown', horizontalalignment='center', verticalalignment='center', transform=plt.gca().transAxes, fontsize=20)
+# plt.text(0.5, -0.18, '(a) insert optimization breakdown', horizontalalignment='center', verticalalignment='center', transform=plt.gca().transAxes, fontsize=20)
 
 # save plot as a high-quality PDF file
 output_filename = '{}.pdf'.format(filename.split('.')[0])

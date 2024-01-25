@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 mpl.rcParams['font.size'] = 20
+plt.rcParams['pdf.fonttype'] = 42
 
 x = [1, 2, 4, 8, 16]
 race_y = [40.37,82.85,158.59,235.78,342.83]

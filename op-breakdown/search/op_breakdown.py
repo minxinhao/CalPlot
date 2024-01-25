@@ -5,10 +5,11 @@ import matplotlib as mpl
 
 # 设置全局字体大小
 mpl.rcParams['font.size'] = 20
+mpl.rcParams['pdf.fonttype'] = 42
 
 # 定义输入文件的名称
-# filename = 'search_op_breakdown.csv' 
-filename = 'search_op_breakdown_2.csv' 
+filename = 'search_op_breakdown.csv' 
+# filename = 'search_op_breakdown_2.csv' 
 
 # 从CSV文件读取数据
 with open(filename, newline='') as csvfile:

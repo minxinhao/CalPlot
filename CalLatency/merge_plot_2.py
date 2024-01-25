@@ -7,6 +7,7 @@ import matplotlib as mpl
 
 # 设置全局字体大小
 mpl.rcParams['font.size'] = 16
+mpl.rcParams['pdf.fonttype'] = 42
 
 # Read the data from the CSV file
 filename = 'search-latency'

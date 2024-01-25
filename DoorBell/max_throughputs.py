@@ -1,6 +1,11 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+
+# 设置全局字体大小
+mpl.rcParams['font.size'] = 20
+mpl.rcParams['pdf.fonttype'] = 42
 
 # 定义输入文件的名称
 filename = 'max-rdma-throughputs.csv'
@@ -22,8 +27,8 @@ access_latency = 1 / max_values
 access_latency = access_latency * 100
 
 # 创建一个水平柱状图
-fig, ax = plt.subplots(figsize=(6.4, 4))
-plt.subplots_adjust(wspace=0.1, top=.9,left=.1,right=.9)
+fig, ax = plt.subplots(figsize=(10, 5.8))
+plt.subplots_adjust(wspace=0.1, top=.9,left=.1,right=.9,bottom=.115)
 ax.bar(range(len(df.index)), access_latency, color='C0', label='access latency')
 
 # 设置图形标题和坐标轴标签
@@ -37,13 +42,13 @@ ax.set_xticklabels(df.index)
 
 # 添加新的一列数据的图形表示
 ax2 = ax.twinx()
-ax2.plot(range(len(df.index)), df[new_column_name], color='C1', marker='o', linewidth=2, label='Bandwidth')
+ax2.plot(range(len(df.index)), df[new_column_name], color='C1', marker='o', linewidth=5, label='Bandwidth')
 ax2.set_ylabel('Bandwidth(GB/s)')
 ax2.set_ylim(0, df[new_column_name].max() * 1.1)
 
 # 添加图例
-ax.legend(loc='upper left',bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=14, framealpha=0, handlelength=0.8)
-ax2.legend(loc='upper right',bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=14, framealpha=0, handlelength=0.8)
+ax.legend(loc='upper left',bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=20, framealpha=0, handlelength=0.8)
+ax2.legend(loc='upper right',bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=20, framealpha=0, handlelength=0.8)
 # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=20, framealpha=0, handlelength=0.8)
 
 # 显示图形

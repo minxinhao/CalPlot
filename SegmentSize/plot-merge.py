@@ -4,6 +4,7 @@ import matplotlib as mpl
 
 # 设置全局字体大小
 mpl.rcParams['font.size'] = 16
+mpl.rcParams['pdf.fonttype'] = 42
 # 输入数据
 data1 = {
     '128B': (15728.04, 36567.54),

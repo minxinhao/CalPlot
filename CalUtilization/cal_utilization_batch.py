@@ -5,6 +5,7 @@ import matplotlib as mpl
 
 # 设置全局字体大小
 mpl.rcParams['font.size'] = 20
+mpl.rcParams['pdf.fonttype'] = 42
 
 # read data from CSV files
 entry_data_df = pd.read_csv('entry_utilization.csv')
