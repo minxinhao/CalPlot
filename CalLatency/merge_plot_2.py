@@ -84,8 +84,8 @@ for delay_index, delay_name in enumerate(selected_delays):
     # Set labels and title
     ax.set_xlabel('Number of Threads')
     if delay_name == "P10 latency":
-        ax.set_yticks([30, 60, 90, 120,150])
-        # ax.set_yticks([20, 40, 60, 80,100])
+        # ax.set_yticks([30, 60, 90, 120,150])
+        ax.set_yticks([20, 40, 60, 80,100])
         ax.set_ylabel('Latency (µs)')
         ax.text(0.5, -0.21, '(a) Median Latency', transform=ax.transAxes, fontsize=20, va='top', ha='center')
     elif delay_name == "P999 latency" or delay_name == "P9999 latency":

@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib as mpl
 
 # 设置全局字体大小
-mpl.rcParams['font.size'] = 20
+mpl.rcParams['font.size'] = 22
 mpl.rcParams['pdf.fonttype'] = 42
 
 # 数据
@@ -31,7 +31,7 @@ legend_labels = ['SepHash', 'RACE', 'CLevel', 'Plush']
 
 # 绘图
 plt.figure(figsize=(7, 5.8))
-plt.subplots_adjust(wspace=0.001, top=.9,bottom=.06,left=.14,right=.99)
+plt.subplots_adjust(wspace=0.001, top=.932,bottom=.08,left=.15,right=.99)
 x = np.arange(len(x_labels))  # x 轴坐标
 width = 0.2  # 柱宽
 plt.bar(x - 1.5 * width, sep_hash, width, label=legend_labels[0], edgecolor='black')
@@ -43,7 +43,7 @@ plt.ylabel('Throughput (Mops)')
 
 # 设置图例
 # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=4, fontsize=14)
-plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=18, framealpha=0, handlelength=.4)
+plt.legend(loc='upper center', bbox_to_anchor=(0.49, 1.13), ncol=4, fontsize=22, framealpha=0, handlelength=.3,columnspacing=0.7)
 
 plt.savefig("ycsb_performance.pdf")
 

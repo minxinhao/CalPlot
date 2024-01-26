@@ -8,8 +8,8 @@ mpl.rcParams['font.size'] = 22
 mpl.rcParams['pdf.fonttype'] = 42
 
 # 定义输入文件的名称
-filename = 'micro_bench_insert.csv' 
-# filename = 'ycsb_search.csv' 
+# filename = 'micro_bench_insert.csv' 
+filename = 'ycsb_search.csv' 
 # filename = 'ycsb_search copy.csv' 
 # filename = 'MainSegSize-Search.csv' 
 # filename = 'YCSB-D.csv' 

@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib as mpl
 
-mpl.rcParams['font.size'] = 20
+mpl.rcParams['font.size'] = 22
 # mpl.rcParams['axes.edgecolor'] = 'black'  # 设置边框颜色为黑色
 mpl.rcParams['pdf.fonttype'] = 42
 
@@ -54,7 +54,7 @@ for i, ratio in enumerate(ratios):
     
 # Set figure size and adjust subplots  
 plt.figure(figsize=(7, 5.8))
-plt.subplots_adjust(wspace=0.1, top=.9, bottom=.11, left=.111, right=.99)
+plt.subplots_adjust(wspace=0.1, top=.932, bottom=.12, left=.12, right=.99)
 
 # Plot bars
 x = np.arange(len(ratios))
@@ -66,7 +66,7 @@ for i, index in enumerate(indexes):
 plt.xlabel("Insert/Search Ratio")
 plt.xticks(x, ratios)  
 plt.ylabel('Throughput (Mops)')
-plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=18, framealpha=0, handlelength=.4)
+plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.13), ncol=4, fontsize=22, framealpha=0, handlelength=.4,columnspacing=.8)
 
 # Save figure
 plt.savefig('var_insert_ratio.pdf')
