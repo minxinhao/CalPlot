@@ -6,18 +6,18 @@ from matplotlib.ticker import ScalarFormatter
 import matplotlib as mpl
 
 # 设置全局字体大小
-mpl.rcParams['font.size'] = 16
+mpl.rcParams['font.size'] = 20
 mpl.rcParams['pdf.fonttype'] = 42
 
 # Read the data from the CSV file
-filename = 'search-latency'
-# filename = 'insert-latency'
+# filename = 'search-latency'
+filename = 'insert-latency'
 # data = pd.read_csv(filename, delimiter=',', index_col=0, skip_blank_lines=True)
 data = pd.read_csv(f'{filename}.csv', delimiter=',', index_col=0, skip_blank_lines=True)
 
 # Set the selected delay names
-# selected_delays = ['P10 latency', 'P999 latency']
-selected_delays = ['P10 latency', 'P9999 latency']
+selected_delays = ['P10 latency', 'P999 latency']
+# selected_delays = ['P10 latency', 'P9999 latency']
 index_label = ['SepHash', 'RACE', 'CLevel','Plush']
 
 # Get the x labels from the first row of delay_data
@@ -84,13 +84,13 @@ for delay_index, delay_name in enumerate(selected_delays):
     # Set labels and title
     ax.set_xlabel('Number of Threads')
     if delay_name == "P10 latency":
-        # ax.set_yticks([30, 60, 90, 120,150])
-        ax.set_yticks([20, 40, 60, 80,100])
+        ax.set_yticks([30, 60, 90, 120,150])
+        # ax.set_yticks([20, 40, 60, 80,100])
         ax.set_ylabel('Latency (µs)')
-        ax.text(0.5, -0.15, '(a) Median Latency', transform=ax.transAxes, fontsize=20, va='top', ha='center')
+        ax.text(0.5, -0.21, '(a) Median Latency', transform=ax.transAxes, fontsize=20, va='top', ha='center')
     elif delay_name == "P999 latency" or delay_name == "P9999 latency":
         ax.set_ylabel('Latency (µs, log scale)')
-        ax.text(0.5, -0.15, '(b) P999 Latency', transform=ax.transAxes, fontsize=20, va='top', ha='center')
+        ax.text(0.5, -0.21, '(b) P999 Latency', transform=ax.transAxes, fontsize=20, va='top', ha='center')
         ax.set_yticks(np.linspace(0, float(max_value), num=6, dtype=int))  # Ensure the tick values are integers
         ax.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(lambda y, _: '10$^{}$'.format(int(y))))  # Format y-tick labels
 
@@ -101,9 +101,9 @@ for delay_index, delay_name in enumerate(selected_delays):
     # Add legend
     # ax.legend()
 
-plt.subplots_adjust(wspace=0.17, top=.9,bottom=.16,left=.08,right=.99)
+plt.subplots_adjust(wspace=0.23, top=.93,bottom=.21,left=.09,right=.99)
 # plt.subplots_adjust(wspace=0.15, top=.93,bottom=.16,left=.08,right=.99)
-fig.legend(index_label,loc='upper center', bbox_to_anchor=(0.5, 1.03), ncol=4, fontsize=16,framealpha=0, handlelength=.4)
+fig.legend(index_label,loc='upper center', bbox_to_anchor=(0.5, 1.04), ncol=4, fontsize=20,framealpha=0, handlelength=.4)
 
 # Save the plot as a high-resolution PDF
 plt.savefig(f'{filename}-combined.pdf', format='pdf', dpi=300)

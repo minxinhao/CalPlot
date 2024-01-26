@@ -4,12 +4,12 @@ import numpy as np
 import matplotlib as mpl
 
 # 设置全局字体大小
-mpl.rcParams['font.size'] = 20
+mpl.rcParams['font.size'] = 22
 mpl.rcParams['pdf.fonttype'] = 42
 
 # 定义输入文件的名称
-# filename = 'micro_bench_insert.csv' 
-filename = 'ycsb_search.csv' 
+filename = 'micro_bench_insert.csv' 
+# filename = 'ycsb_search.csv' 
 # filename = 'ycsb_search copy.csv' 
 # filename = 'MainSegSize-Search.csv' 
 # filename = 'YCSB-D.csv' 
@@ -45,7 +45,7 @@ output_filename = '{}.pdf'.format(filename.split('.')[0])
 
 plt.figure(figsize=(7, 5.8))
 # plt.subplots_adjust(wspace=0.1, top=1,left=.1,right=.99)
-plt.subplots_adjust(wspace=0.1, top=.9,bottom=.11,left=0.14,right=.99)
+plt.subplots_adjust(wspace=0.1, top=.932,bottom=.12,left=0.1,right=.99)
 
 for i, (name, group) in enumerate(groups):
     y_data = np.array(group) / 1000 # 将数据除以10
@@ -53,9 +53,9 @@ for i, (name, group) in enumerate(groups):
     plt.plot(x_labels, y_data, label=name, marker=markers[i],markersize=8) # 指定标记样式
 plt.xlabel("Number of Threads")
 plt.ylabel("Throughput (Mops)")
-plt.legend(fontsize=20) # 调
+# plt.legend(fontsize=20) # 调
 # 整图例字体大小
-plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=18, framealpha=0, handlelength=0.4)
+plt.legend(loc='upper center', bbox_to_anchor=(0.48, 1.13), ncol=4, fontsize=23, framealpha=0, handlelength=0.4,columnspacing=0.8)
 
 
 # 将输出文件保存到指定名称
