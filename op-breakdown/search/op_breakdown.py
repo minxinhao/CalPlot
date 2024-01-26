@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib as mpl
 
 # 设置全局字体大小
-mpl.rcParams['font.size'] = 20
+mpl.rcParams['font.size'] = 24
 mpl.rcParams['pdf.fonttype'] = 42
 
 # 定义输入文件的名称
@@ -23,7 +23,7 @@ with open(filename, newline='') as csvfile:
 # 使用原始数据中的代码绘制折线图
 plt.figure(figsize=(7, 6))
 # plt.subplots_adjust(wspace=0.1, top=1,left=.14,right=.99)
-plt.subplots_adjust(wspace=0.1, top=1,bottom=.18,left=.14,right=.99)
+plt.subplots_adjust(wspace=0.1, top=1,bottom=.13,left=.16,right=.99)
 
 groups = []
 for row in data:
@@ -47,7 +47,7 @@ for i, (name, group) in enumerate(groups):
     plt.plot(x_labels, y_data, label=name, marker=markers[i],markersize=10) # 指定标记样式
 plt.xlabel("Number of Threads")
 plt.ylabel("Throughput (Mops)")
-plt.legend(fontsize=20)
+plt.legend(fontsize=24)
 # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=14, framealpha=0.8, handlelength=1)
 # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=20, framealpha=0, handlelength=.3)
 

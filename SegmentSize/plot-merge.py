@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 # 设置全局字体大小
-mpl.rcParams['font.size'] = 16
+mpl.rcParams['font.size'] = 22
 mpl.rcParams['pdf.fonttype'] = 42
 # 输入数据
 data1 = {
@@ -33,7 +33,7 @@ search_data2 = [data2[key][1]/1000 for key in segments2]
 x_ticks2 = np.arange(len(segments2))
 
 # 设置柱状图的宽度
-bar_width = 0.35
+bar_width = 0.4
 
 # 创建图形和子图
 fig, (ax1, ax3) = plt.subplots(1, 2, figsize=(12, 5), sharey=False)
@@ -71,17 +71,17 @@ ax3.set_ylabel('Insert Throughput(Mops)')
 ax4.set_ylabel('Search Throughput(Mops)')
 
 
-ax1.text(0.5, -0.1, '(a) Impact of CurSegment Size', transform=ax1.transAxes, fontsize=20, va='top', ha='center')
-ax3.text(1.8, -0.1, '(b) Impact of MainSegment Size', transform=ax2.transAxes, fontsize=20, va='top', ha='center')
+ax1.text(0.5, -0.12, '(a) Impact of CurSegment Size', transform=ax1.transAxes, fontsize=22, va='top', ha='center')
+ax3.text(2, -0.12, '(b) Impact of MainSegment Size', transform=ax2.transAxes, fontsize=22, va='top', ha='center')
 
 # 添加图例
 lines, labels = ax1.get_legend_handles_labels()
 lines2, labels2 = ax2.get_legend_handles_labels()
 # fig.legend(lines + lines2, labels + labels2, loc='upper center', ncol=2,framealpha=0, handlelength=.4)
-fig.legend(lines + lines2, labels + labels2, loc='upper center', ncol=2, framealpha=0, handlelength=.4, bbox_to_anchor=(.5, 1.03))
-# ax1.legend(labels+labels2,loc='upper center',bbox_to_anchor=(1, 1.15), ncol=2, fontsize=20, framealpha=0, handlelength=2)
+fig.legend(lines + lines2, labels + labels2, loc='upper center', ncol=2, fontsize=22,framealpha=0, handlelength=.4, bbox_to_anchor=(.5, 1.05))
+# ax1.legend(labels+labels2,loc='upper center',bbox_to_anchor=(1, 1.15), ncol=2, fontsize=22, framealpha=0, handlelength=2)
 
-plt.subplots_adjust(wspace=0.4, top=.9,bottom=.13,left=.08,right=.93)
+plt.subplots_adjust(wspace=0.5, top=.93,bottom=.15,left=.08,right=.93)
 
 # 设置图形标题
 # plt.suptitle('Insert and Search Performance')

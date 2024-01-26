@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 # 设置全局字体大小
-mpl.rcParams['font.size'] = 20
+mpl.rcParams['font.size'] = 24
 mpl.rcParams['pdf.fonttype'] = 42
 
 filename = 'insert_op_breakdown.csv' 
@@ -14,7 +14,7 @@ data_df = pd.read_csv(filename)
 # define x-axis values
 x = range(1, 9, 1)
 plt.figure(figsize=(7, 6))
-plt.subplots_adjust(wspace=0.1, top=1,bottom=.18,left=.12,right=.99)
+plt.subplots_adjust(wspace=0.1, top=1,bottom=.13,left=.13,right=.99)
 
 # create plot
 plt.plot(x, data_df['RACE']/1000, label='RACE', marker='o',markersize=10)
@@ -25,11 +25,11 @@ plt.plot(x, data_df['zero-wait']/1000, label='+zero-wait write', marker='^',mark
 plt.xticks(x, ['1','2','4','8','16','32','64','128'])
 
 # add title and axis labels
-plt.xlabel('number of clients')
+plt.xlabel('Number of clients',fontsize=24)
 plt.ylabel("Throughput (Mops)")
 
 # add legend
-plt.legend(fontsize=20)
+plt.legend(fontsize=24)
 # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=14, framealpha=0.8, handlelength=1)
 # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=20, framealpha=0, handlelength=.4)
 # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=4, fontsize=20, framealpha=0, handlelength=.4)

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 # 设置全局字体大小
-mpl.rcParams['font.size'] = 20
+mpl.rcParams['font.size'] = 22
 mpl.rcParams['pdf.fonttype'] = 42
 
 # read data from CSV files
@@ -36,14 +36,14 @@ ax2.set_xlabel("Number of Inserted KVs (thousands)")
 # ax2.set_ylabel("Space Utilization")
 
 # add legend
-ax1.legend(loc='upper center',bbox_to_anchor=(1, 1.2), ncol=4, fontsize=20, framealpha=0, handlelength=2)
+ax1.legend(loc='upper center',bbox_to_anchor=(1, 1.15), ncol=4, fontsize=22, framealpha=0, handlelength=2)
 
 # add subplot titles below the figures
-ax1.text(0.5, -0.2, '(a) Entry Utilization', transform=ax1.transAxes, fontsize=20, va='top', ha='center')
-ax2.text(0.5, -0.2, '(b) Space Utilization', transform=ax2.transAxes, fontsize=20, va='top', ha='center')
+ax1.text(0.5, -0.2, '(a) Entry Utilization', transform=ax1.transAxes, fontsize=22, va='top', ha='center')
+ax2.text(0.5, -0.2, '(b) Space Utilization', transform=ax2.transAxes, fontsize=22, va='top', ha='center')
 
 # adjust spacing between subplots and legend
-plt.subplots_adjust(wspace=0.15, top=.88,bottom=.2,left=.046,right=1)
+plt.subplots_adjust(wspace=0.15, top=.93,bottom=.2,left=.046,right=1)
 
 # save plot as a high-quality PDF file
 plt.savefig('entry_space_utilization.pdf', dpi=300, bbox_inches='tight')

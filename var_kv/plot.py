@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 # 设置全局字体大小
-mpl.rcParams['font.size'] = 16
+mpl.rcParams['font.size'] = 20
 mpl.rcParams['pdf.fonttype'] = 42
 # 数据
 # labels = ['8 bytes', '16 bytes', '32 bytes', '64 bytes', '128 bytes', '256 bytes', '512 bytes', '1 KB', '2 KB', '4 KB']
@@ -22,7 +22,7 @@ width = 0.35  # 柱状图宽度
 
 # 创建图形对象和两个子图
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5.8))
-plt.subplots_adjust(wspace=0.2, top=.9,bottom=.25,left=0.08,right=.99)
+plt.subplots_adjust(wspace=0.2, top=.92,bottom=.3,left=0.08,right=.99)
 
 # 绘制第一个子图
 rects1 = ax1.bar(x - width/2, key_values, width, label='Key-Size')
@@ -35,7 +35,7 @@ ax1.set_xticklabels(labels, rotation=45)
 # ax1.set_xticklabels(labels, rotation=45, ha='right')  # 设置刻度标签向左对齐
 # ax1.set_xticklabels(labels)
 # ax1.legend()
-ax1.legend(loc='upper center', bbox_to_anchor=(1.1, 1.15), ncol=4, fontsize=16,framealpha=0, handlelength=.4)
+ax1.legend(loc='upper center', bbox_to_anchor=(1.1, 1.19), ncol=4, fontsize=20,framealpha=0, handlelength=.4)
 
 
 # 添加数值标签

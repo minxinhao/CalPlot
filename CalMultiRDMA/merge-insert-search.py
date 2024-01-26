@@ -4,7 +4,7 @@ import os
 import matplotlib as mpl
 
 # 设置全局字体大小
-mpl.rcParams['font.size'] = 16
+mpl.rcParams['font.size'] = 22
 mpl.rcParams['pdf.fonttype'] = 42
 
 # 读取Excel文件
@@ -13,7 +13,7 @@ search_excel_file = 'search.xlsx'
 
 # 创建一个包含两个子图的图形
 fig, axes = plt.subplots(1, 2, figsize=(12, 5.8))
-fig.subplots_adjust(wspace=0.2, top=0.88, bottom=0.16,left=0.06, right=.99)
+fig.subplots_adjust(wspace=0.25, top=0.92, bottom=0.2,left=0.08, right=.99)
 
 # 处理插入数据的Excel文件
 insert_data = pd.read_excel(insert_excel_file, header=None)
@@ -42,7 +42,7 @@ for index_type, values in insert_max_values.items():
     i += 1
 
 # 添加标签
-axes[0].set_xlabel('Server Number')
+axes[0].set_xlabel('Server Number',fontsize=20)
 axes[0].set_ylabel('Throughput (Mops)')
 
 # 处理搜索数据的Excel文件
@@ -71,15 +71,15 @@ for index_type, values in search_max_values.items():
     i += 1
 
 # 添加标签
-axes[1].set_xlabel('Server Number')
+axes[1].set_xlabel('Server Number',fontsize=20)
 axes[1].set_ylabel('Throughput (Mops)')
 
 # 共享图例
 handles, labels = axes[1].get_legend_handles_labels()
-fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, 1), ncol=len(labels),framealpha=0, handlelength=2)
+fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, 1.04), ncol=len(labels),fontsize=22,framealpha=0, handlelength=1.5)
 
-axes[0].text(0.5, -0.15, '(a) insert performance', transform=axes[0].transAxes, fontsize=20, va='top', ha='center')
-axes[1].text(0.5, -0.15, '(b) search performance', transform=axes[1].transAxes, fontsize=20, va='top', ha='center')
+axes[0].text(0.5, -0.2, '(a) insert performance', transform=axes[0].transAxes, fontsize=22, va='top', ha='center')
+axes[1].text(0.5, -0.2, '(b) search performance', transform=axes[1].transAxes, fontsize=22, va='top', ha='center')
 
 
 # 保存为高精度PDF文件
